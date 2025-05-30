@@ -1,0 +1,82 @@
+#include "daisy_seed.h"
+#include "daisy_petal.h"
+#include "daisysp.h"
+#include "controls.h"
+#include "globals.h"
+#include "bpm.h"
+#include "metronome.h"
+#include "utils.h"
+
+using namespace daisy;
+using namespace daisysp;
+using namespace daisy::seed;
+
+DaisySeed hw;
+extern CustomLooper looper;
+BpmRunner bpmRunner;
+MetronomeClick metronome;
+
+static constexpr int MAX_LOOP_SECONDS = 60;   // Maximum loop duration
+static constexpr int MAX_BUFFER_SIZE = MAX_LOOP_SECONDS*48000;   // Maximum loop duration
+float DSY_SDRAM_BSS loopBuffer[MAX_BUFFER_SIZE];
+
+void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        // Input sample
+        float inputSample = in[0][i];
+
+        // Looper rcording input
+        looper.record(inputSample);
+        
+        // Looper processing
+        float loopedSample = looper.play();
+        float processedSample = inputSample + loopedSample;
+
+        // Metronome clicks
+        float metronomeClick = metronome.Process();
+        out[0][i] = processedSample + metronomeClick;
+    }
+}
+
+int main(void)
+{
+    SetupHardware();
+    float bpm = 120.0f; // Set BPM
+    float beatsPerMeasure = 4.0; // Define how many beats per loop
+    bpmRunner.Init(bpm, beatsPerMeasure);
+    metronome.Init(hw.AudioSampleRate());
+    metronome.SetDuration(20.0f); // Click length: 20ms
+    looper.init(loopBuffer, MAX_BUFFER_SIZE, hw.AudioSampleRate(), bpm);
+    hw.StartAudio(AudioCallback);
+    hw.StartLog(false);
+    while (1)
+    {
+        updateControls();  // Implement controls to start/stop recording & playback
+        bpmRunner.Update();
+        bpmRunner.SetBpm(linMap(knob6, 0.f, 1.f, 40.f, 280.f));
+        blinkBpm(bpmRunner);
+        if (bpmRunner.IsBeat())
+        {                
+            metronome.Trigger(bpmRunner.IsMeasure() ? ClickType::Accent : ClickType::Normal);
+        }
+        if (footswitch1State)
+        {
+            looper.startRecording(footswitch1State);
+        }
+        else
+        {
+            looper.stopRecording(!footswitch1State);
+        }
+        if (footswitch2State)
+        {
+            looper.startPlayback(footswitch2State);
+        }
+        else
+        {
+            looper.stopPlayback(!footswitch2State);
+        }
+        System::Delay(5);
+    }
+}
