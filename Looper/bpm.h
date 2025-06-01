@@ -13,6 +13,8 @@ class BpmRunner
     int GetBeatInMeasure() const;
     void Reset();
     void SetBpm(float newBpm);
+    float GetBpm();
+    int GetBeatsPerMeasure();
 
   private:
     float bpm_;

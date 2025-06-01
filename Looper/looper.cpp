@@ -1,13 +1,15 @@
 #include "looper.h"
 #include <algorithm>
 
-void CustomLooper::Init(float sampleRate, float bpm, float beatsPerLoop)
+void CustomLooper::Init(float sampleRate, BpmRunner& bpmRunnerInstance)
 {
     this->sampleRate = sampleRate;
-    this->bpm = bpm;
-    this->beatsPerLoop = beatsPerLoop;
+    bpmRunner = &bpmRunnerInstance;
 
-    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
+    float bpm_ = bpmRunner->GetBpm();
+    int beatsPerLoop_ = bpmRunner->GetBeatsPerMeasure();
+
+    loopLength = static_cast<size_t>((60.0f / bpm_) * beatsPerLoop_ * sampleRate);
     loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
 
     buffer.Init();
@@ -17,23 +19,60 @@ void CustomLooper::Init(float sampleRate, float bpm, float beatsPerLoop)
 
     isRecording = false;
     isPlaying = false;
+    isRecordingPending = false;
+    useSnap = true; // default if snapping is desired
+}
+
+void CustomLooper::Update()
+{
+    if (isRecordingPending)
+    {
+        if (bpmRunner->IsMeasure())  // shared instance tells us about measure start
+        {
+            isRecordingPending = false;
+            isRecording = true;
+            buffer.SetWritePosition(0);
+            // clear buffer if needed
+        }
+    }
+
+    // other update code...
+}
+
+void CustomLooper::UpdateLoopTiming()
+{
+    bpm_ = bpmRunner->GetBpm();
+    beatsPerLoop_ = bpmRunner->GetBeatsPerMeasure();
+    loopLength = static_cast<size_t>((60.0f / bpm_) * beatsPerLoop_ * sampleRate);
+    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
+    buffer.Clear();
+    buffer.SetWritePosition(0);
+    buffer.SetReadPosition(0);
 }
 
 void CustomLooper::StartRecording(bool activate)
 {
-    if (activate && !isRecording)
+    if (activate && !isRecording && !isRecordingPending)
     {
-        isRecording = true;
-        buffer.SetWritePosition(0);
-        buffer.Clear();
+        if (useSnap)  // if snapping enabled
+        {
+            isRecordingPending = true;
+        }
+        else
+        {
+            isRecording = true;
+            buffer.Clear();
+            buffer.SetWritePosition(0);
+        }
     }
 }
 
 void CustomLooper::StopRecording(bool activate)
 {
-    if (activate && isRecording)
+    if (activate && (isRecording || isRecordingPending))
     {
         isRecording = false;
+        isRecordingPending = false;
         buffer.SetReadPosition(0);
         isPlaying = true;
     }
@@ -60,38 +99,29 @@ void CustomLooper::Reset()
 {
     isRecording = false;
     isPlaying = false;
+    isRecordingPending = false;
     buffer.Clear();
-}
-
-void CustomLooper::SetBpm(float newBpm)
-{
-    bpm = newBpm;
-    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
-    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
-    buffer.Clear();
-}
-
-void CustomLooper::SetBeatsPerLoop(float beats)
-{
-    beatsPerLoop = beats;
-    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
-    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
-    buffer.Clear();
+    buffer.SetReadPosition(0);
+    buffer.SetWritePosition(0);
 }
 
 float CustomLooper::ProcessSample(float inputSample)
 {
-    float out = 0.0f;
+    float outputSample = 0.0f;
 
-    if (isRecording && buffer.GetWritePosition() < loopLength)
+    // Record if recording and buffer not full
+    if (isRecording)
     {
-        buffer.WriteSample(inputSample);
+        if (buffer.GetWritePosition() < loopLength)
+            buffer.WriteSample(inputSample);
+        else
+            isRecording = false;  // stop recording when buffer full automatically
     }
 
     if (isPlaying)
     {
-        out = buffer.ReadSample();
+        outputSample = buffer.ReadSample();
     }
 
-    return out;
+    return outputSample;
 }

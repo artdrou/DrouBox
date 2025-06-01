@@ -3,20 +3,22 @@
 
 #include <vector>
 #include "buffer.h"
+#include "bpm.h"
 
 class CustomLooper
 {
-  public:
-    void Init(float sampleRate, float bpm, float beatsPerLoop);
+    BpmRunner* bpmRunner;
 
+  public:
+    void Init(float sampleRate, BpmRunner& bpmRunnerInstance);
+    void Update();
     void StartRecording(bool activate);
     void StopRecording(bool activate);
     void StartPlayback(bool activate);
     void StopPlayback(bool activate);
     void Reset();
 
-    void SetBpm(float newBpm);
-    void SetBeatsPerLoop(float beats);
+    void UpdateLoopTiming();
 
     float ProcessSample(float inputSample);
 
@@ -27,12 +29,15 @@ class CustomLooper
     Buffer buffer;
 
     float sampleRate = 48000.0f;
-    float bpm = 120.0f;
-    float beatsPerLoop = 4.0f;
     size_t loopLength = 0;
 
     bool isRecording = false;
+    bool isRecordingPending = false;
     bool isPlaying = false;
+    bool useSnap = true;
+
+    float bpm_;
+    int beatsPerLoop_;
 };
 
 #endif // LOOPER_H
