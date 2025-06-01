@@ -17,7 +17,6 @@ BpmRunner bpmRunner;
 MetronomeClick metronome;
 
 static constexpr int MAX_LOOP_SECONDS = 60;   // Maximum loop duration
-static constexpr int MAX_BUFFER_SIZE = MAX_LOOP_SECONDS*48000;   // Maximum loop duration
 float DSY_SDRAM_BSS loopBuffer[MAX_BUFFER_SIZE];
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -26,17 +25,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
     {
         // Input sample
         float inputSample = in[0][i];
-
-        // Looper rcording input
-        looper.record(inputSample);
-        
         // Looper processing
-        float loopedSample = looper.play();
-        float processedSample = inputSample + loopedSample;
+        float loopedSample = looper.ProcessSample(inputSample);
 
         // Metronome clicks
         float metronomeClick = metronome.Process();
-        out[0][i] = processedSample + metronomeClick;
+        out[0][i] = inputSample + loopedSample + metronomeClick;
     }
 }
 
@@ -48,7 +42,7 @@ int main(void)
     bpmRunner.Init(bpm, beatsPerMeasure);
     metronome.Init(hw.AudioSampleRate());
     metronome.SetDuration(20.0f); // Click length: 20ms
-    looper.init(loopBuffer, MAX_BUFFER_SIZE, hw.AudioSampleRate(), bpm);
+    looper.Init(hw.AudioSampleRate(), bpm, beatsPerMeasure);
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
     while (1)
@@ -63,19 +57,19 @@ int main(void)
         }
         if (footswitch1State)
         {
-            looper.startRecording(footswitch1State);
+            looper.StartRecording(footswitch1State);
         }
         else
         {
-            looper.stopRecording(!footswitch1State);
+            looper.StopRecording(!footswitch1State);
         }
         if (footswitch2State)
         {
-            looper.startPlayback(footswitch2State);
+            looper.StartPlayback(footswitch2State);
         }
         else
         {
-            looper.stopPlayback(!footswitch2State);
+            looper.StopPlayback(!footswitch2State);
         }
         System::Delay(5);
     }
