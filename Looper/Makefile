@@ -2,7 +2,7 @@
 TARGET = Looper
 
 # Sources
-CPP_SOURCES = main.cpp globals.cpp utils.cpp controls.cpp looper.cpp bpm.cpp metronome.cpp
+CPP_SOURCES = main.cpp globals.cpp utils.cpp controls.cpp looper.cpp bpm.cpp metronome.cpp buffer.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/
