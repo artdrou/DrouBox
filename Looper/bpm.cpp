@@ -56,3 +56,13 @@ void BpmRunner::SetBpm(float newBpm)
     bpm_ = newBpm;
     interval_ms_ = static_cast<uint32_t>(60000.0f / bpm_);
 }
+
+float BpmRunner::GetBpm()
+{
+    return bpm_;
+}
+
+int BpmRunner::GetBeatsPerMeasure()
+{
+    return beats_per_measure_;
+}

@@ -42,7 +42,7 @@ int main(void)
     bpmRunner.Init(bpm, beatsPerMeasure);
     metronome.Init(hw.AudioSampleRate());
     metronome.SetDuration(20.0f); // Click length: 20ms
-    looper.Init(hw.AudioSampleRate(), bpm, beatsPerMeasure);
+    looper.Init(hw.AudioSampleRate(), bpmRunner);
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
     while (1)
@@ -51,6 +51,7 @@ int main(void)
         bpmRunner.Update();
         bpmRunner.SetBpm(linMap(knob6, 0.f, 1.f, 40.f, 280.f));
         blinkBpm(bpmRunner);
+        looper.Update();
         if (bpmRunner.IsBeat())
         {                
             metronome.Trigger(bpmRunner.IsMeasure() ? ClickType::Accent : ClickType::Normal);
