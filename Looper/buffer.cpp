@@ -3,87 +3,57 @@
 // Static SDRAM buffer definition
 float DSY_SDRAM_BSS Buffer::sdramBuffer[MAX_BUFFER_SIZE];
 
-void Buffer::Init(float sampleRate, float bpm, float beatsPerLoop)
+void Buffer::Init()
 {
-    this->sampleRate = sampleRate;
-    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
-    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
-
     buffer = sdramBuffer;
-    Reset();
-
-    isActive = true;
+    bufferLength = MAX_BUFFER_SIZE;
     writePos = 0;
     readPos = 0;
+    Clear();
 }
 
-void Buffer::Reset()
+void Buffer::Clear()
 {
-    for (size_t i = 0; i < loopLength; ++i)
+    for (size_t i = 0; i < bufferLength; ++i)
         buffer[i] = 0.0f;
-
     writePos = 0;
     readPos = 0;
 }
 
 void Buffer::WriteSample(float sample)
 {
-    if (isActive)
-    {
-        buffer[writePos] = sample;
-        AdvanceWrite();
-    }
+    buffer[writePos] = sample;
+    writePos = (writePos + 1) % bufferLength;
 }
 
 float Buffer::ReadSample()
 {
-    if (!isActive)
-        return 0.0f;
-
     float out = buffer[readPos];
-    AdvanceRead();
+    readPos = (readPos + 1) % bufferLength;
     return out;
-}
-
-void Buffer::AdvanceWrite()
-{
-    writePos = (writePos + 1) % loopLength;
-}
-
-void Buffer::AdvanceRead()
-{
-    readPos = (readPos + 1) % loopLength;
-}
-
-void Buffer::SetLengthFromBpm(float bpm, float beatsPerLoop)
-{
-    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
-    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
-    Reset();
-}
-
-void Buffer::SetLengthSamples(size_t length)
-{
-    loopLength = std::min(length, MAX_BUFFER_SIZE);
-    Reset();
 }
 
 void Buffer::SetReadPosition(size_t pos)
 {
-    readPos = pos % loopLength;
+    readPos = pos % bufferLength;
 }
 
 void Buffer::SetWritePosition(size_t pos)
 {
-    writePos = pos % loopLength;
+    writePos = pos % bufferLength;
 }
 
-size_t Buffer::GetLoopLength() const
+size_t Buffer::GetReadPosition() const
 {
-    return loopLength;
+    return readPos;
 }
 
-void Buffer::Stop()
+size_t Buffer::GetWritePosition() const
 {
-    isActive = false;
+    return writePos;
+}
+
+float* Buffer::GetRawPointer()
+{
+    return buffer;
 }

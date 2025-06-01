@@ -2,31 +2,37 @@
 #define LOOPER_H
 
 #include <vector>
+#include "buffer.h"
 
 class CustomLooper
 {
-public:
-    void init(float* externalBuffer, size_t bufferSize, float sampleRate, float bpm);
-    void setLoopLength(float newLengthInSeconds);
-    void startRecording(bool activate);
-    void stopRecording(bool activate);
-    void startPlayback(bool activate);
-    void stopPlayback(bool activate);
-    void resetLoop();
-    void record(float inputSample);
-    float play();
-    bool isRecording;
-    bool isPlaying;
+  public:
+    void Init(float sampleRate, float bpm, float beatsPerLoop);
 
-private:
-    float* loopBuffer; // Pointer to external SDRAM buffer
-    size_t loopBufferSize;
-    float sampleRate;
-    float bpm;
-    int loopLength;
-    int maxLoopBufferSize;
-    size_t writePosition, readPosition;
-    size_t recordedLength = 0;
+    void StartRecording(bool activate);
+    void StopRecording(bool activate);
+    void StartPlayback(bool activate);
+    void StopPlayback(bool activate);
+    void Reset();
+
+    void SetBpm(float newBpm);
+    void SetBeatsPerLoop(float beats);
+
+    float ProcessSample(float inputSample);
+
+    bool IsRecording() const { return isRecording; }
+    bool IsPlaying() const { return isPlaying; }
+
+  private:
+    Buffer buffer;
+
+    float sampleRate = 48000.0f;
+    float bpm = 120.0f;
+    float beatsPerLoop = 4.0f;
+    size_t loopLength = 0;
+
+    bool isRecording = false;
+    bool isPlaying = false;
 };
 
 #endif // LOOPER_H

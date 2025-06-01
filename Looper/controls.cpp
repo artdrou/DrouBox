@@ -182,9 +182,9 @@ void SetupHardware() {
 
 // LED Control Functions
 void updateLeds() {
-    if (looper.isRecording)
+    if (looper.IsRecording())
         led1.Set(false);
-    if (looper.isPlaying)
+    if (looper.IsPlaying())
         led2.Set(false);
     led1.Update();
     led2.Update();

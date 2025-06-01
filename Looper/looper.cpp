@@ -1,85 +1,54 @@
 #include "looper.h"
-#include <vector>
 #include <algorithm>
-#include "daisy_seed.h"
-#include "daisy_petal.h"
-#include "daisysp.h"
 
-using namespace daisy;
-using namespace daisysp;
-using namespace daisy::seed;
-
-// Hardware instance
-extern DaisySeed hw;
-
-void CustomLooper::init(float* externalBuffer, size_t bufferSize, float sampleRate, float bpm)
+void CustomLooper::Init(float sampleRate, float bpm, float beatsPerLoop)
 {
-    this->loopBuffer = externalBuffer;
-    this->loopBufferSize = bufferSize;
     this->sampleRate = sampleRate;
     this->bpm = bpm;
+    this->beatsPerLoop = beatsPerLoop;
 
-    writePosition = 0;
-    readPosition = 0;
+    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
+    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
+
+    buffer.Init();
+    buffer.Clear();
+    buffer.SetWritePosition(0);
+    buffer.SetReadPosition(0);
+
     isRecording = false;
     isPlaying = false;
-
-    // Clear the buffer to avoid undefined noise
-    for(size_t i = 0; i < bufferSize; ++i)
-        loopBuffer[i] = 0.0f;
 }
 
-void CustomLooper::setLoopLength(float newLengthInSeconds)
-{
-    int newSize = static_cast<int>(sampleRate * newLengthInSeconds);
-    if (newSize <= maxLoopBufferSize) // Ensure we don’t exceed SDRAM
-    {
-        loopBufferSize = newSize;
-    }
-}
-
-void CustomLooper::startRecording(bool activate)
+void CustomLooper::StartRecording(bool activate)
 {
     if (activate && !isRecording)
     {
-        std::fill(loopBuffer, loopBuffer + loopBufferSize, 0.0f); // Reset buffer to silence
-        hw.PrintLine("start recording");
         isRecording = true;
-        writePosition = 0;
+        buffer.SetWritePosition(0);
+        buffer.Clear();
     }
 }
 
-void CustomLooper::stopRecording(bool activate)
+void CustomLooper::StopRecording(bool activate)
 {
     if (activate && isRecording)
     {
-        hw.PrintLine("stop recording");
         isRecording = false;
-        recordedLength = writePosition;
-        readPosition = 0;
+        buffer.SetReadPosition(0);
         isPlaying = true;
     }
 }
 
-void CustomLooper::resetLoop()
-{
-    std::fill(loopBuffer, loopBuffer + loopBufferSize, 0.0f); // Reset loop to silence
-    writePosition = 0;
-    readPosition = 0;
-    isRecording = false;
-    isPlaying = false;
-}
-
-void CustomLooper::startPlayback(bool activate)
+void CustomLooper::StartPlayback(bool activate)
 {
     if (activate && !isPlaying)
     {
         isPlaying = true;
-        readPosition = 0;
+        buffer.SetReadPosition(0);
     }
 }
 
-void CustomLooper::stopPlayback(bool activate)
+void CustomLooper::StopPlayback(bool activate)
 {
     if (activate && isPlaying)
     {
@@ -87,27 +56,42 @@ void CustomLooper::stopPlayback(bool activate)
     }
 }
 
-void CustomLooper::record(float inputSample)
+void CustomLooper::Reset()
 {
-    if (isRecording)
-    {
-        loopBuffer[writePosition++] = inputSample * 0.9f; // Lower recording volume to prevent clipping
-        if (writePosition >= loopBufferSize)
-            isRecording = false; // Auto-stop if maxed
-    }
+    isRecording = false;
+    isPlaying = false;
+    buffer.Clear();
 }
 
-float CustomLooper::play()
+void CustomLooper::SetBpm(float newBpm)
 {
-    float outputSample = 0.f;
+    bpm = newBpm;
+    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
+    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
+    buffer.Clear();
+}
+
+void CustomLooper::SetBeatsPerLoop(float beats)
+{
+    beatsPerLoop = beats;
+    loopLength = static_cast<size_t>((60.0f / bpm) * beatsPerLoop * sampleRate);
+    loopLength = std::min(loopLength, MAX_BUFFER_SIZE);
+    buffer.Clear();
+}
+
+float CustomLooper::ProcessSample(float inputSample)
+{
+    float out = 0.0f;
+
+    if (isRecording && buffer.GetWritePosition() < loopLength)
+    {
+        buffer.WriteSample(inputSample);
+    }
+
     if (isPlaying)
     {
-        outputSample = loopBuffer[readPosition] * 0.8f; // Reduce volume to avoid loud playback
-        readPosition++;
-        if(readPosition >= recordedLength)
-            readPosition = 0;
+        out = buffer.ReadSample();
     }
-    return outputSample;
+
+    return out;
 }
-
-
