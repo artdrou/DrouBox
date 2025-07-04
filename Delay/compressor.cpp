@@ -1,5 +1,5 @@
 #include "Compressor.h"
-#include "utils.h"
+#include <utils/mapping.h>
 
 
 // Constructor

@@ -1,5 +1,5 @@
 #include "disto.h"
-#include "utils.h"
+#include <utils/mapping.h>
 #include <cmath>
 #include <algorithm> // For std::clamp
 #define PI 3.1415926535897932384626433f

@@ -1,5 +1,5 @@
 #include "filters.h"
-#include "utils.h"
+#include <utils/mapping.h>
 #include "controls.h"
 #include <cmath>
 #define PI 3.1415926535897932384626433f

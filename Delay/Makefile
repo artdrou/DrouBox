@@ -4,12 +4,12 @@ TARGET = Delay
 # Sources
 CPP_SOURCES = main.cpp \
 disto.cpp \
-utils.cpp \
 controls.cpp \
 filters.cpp \
 compressor.cpp \
 delay.cpp \
-../../../drouAudioLib/src/lfo.cpp
+../../../drouAudioLib/src/lfo.cpp \
+../../../drouAudioLib/src/mapping.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

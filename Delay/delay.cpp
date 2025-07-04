@@ -1,5 +1,5 @@
 #include "delay.h"
-#include "utils.h"
+#include <utils/mapping.h>
 
 // Prepare delay buffers and parameters
 void Delay::init(float sampleRate)
@@ -14,7 +14,7 @@ void Delay::init(float sampleRate)
     rightWritePosition = 0;
 
     // Initialize the LFO with sampleRate and modulation rate
-    lfo.initialize(sampleRate, modRate, drouAudioLib::Lfo::Waveform::Sine);
+    lfo.init(sampleRate, modRate, drouAudioLib::Lfo::Waveform::Sine);
 }
 
 // Reset delay buffers
