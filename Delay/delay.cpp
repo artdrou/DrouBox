@@ -14,7 +14,7 @@ void Delay::init(float sampleRate)
     rightWritePosition = 0;
 
     // Initialize the LFO with sampleRate and modulation rate
-    lfo.initialize(sampleRate, modRate, LFO::Waveform::Sine);
+    lfo.initialize(sampleRate, modRate, drouAudioLib::Lfo::Waveform::Sine);
 }
 
 // Reset delay buffers

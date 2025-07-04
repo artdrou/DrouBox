@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cmath>
-#include "LFO.h"  // Include your LFO class
+#include <audio/lfo.h>
 
 #define MAX_DELAY_TIME .5f // Maximum delay time in seconds
 
@@ -35,7 +35,7 @@ private:
     int leftWritePosition = 0;
     int rightWritePosition = 0;
 
-    LFO lfo; // Use your LFO class
+    drouAudioLib::Lfo lfo; // Use your LFO class
 
     // Function to modulate the delay time using LFO
     float getModulatedDelayTime(bool isLeftChannel);
