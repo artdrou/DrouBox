@@ -13,10 +13,6 @@ using namespace daisy::seed;
 // --- Global Hardware Objects ---
 extern DaisySeed hw;
 
-// Footswitches
-extern Switch footswitch1, footswitch2;
-extern bool footswitch1State, footswitch2State;
-
 // DIP Switches
 extern dsy_gpio dip1, dip2, dip3, dip4;
 extern int dips_last_value;
@@ -74,7 +70,6 @@ enum AdcChannel
 
 // --- Setup Functions ---
 void SetupHardware();
-void SetupFootswicthes();
 void SetupDips();
 void SetupSwitches();
 void SetupKnobs();
@@ -85,7 +80,6 @@ void GetDipSwitchesStates(int states[4]);
 void GetSwitchesStates();
 
 // --- Update Functions ---
-void updateFootswitches();
 void updateDips();
 void updateSwitches();
 void updateKnobs();

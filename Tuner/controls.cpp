@@ -10,11 +10,6 @@ using namespace daisy::seed;
 // Hardware instance
 extern DaisySeed hw;
 
-// Footswitch instances
-Switch footswitch1, footswitch2;
-bool footswitch1State = false;
-bool footswitch2State = false;
-
 onOffOnSwitch switches[3];
 
 // DIP switch pins
@@ -37,23 +32,6 @@ float lastValueKnob3;
 float lastValueKnob4;
 float lastValueKnob5;
 float lastValueKnob6;
-
-// Blinking leds variables
-bool blink_active = false;
-int blink_count = 0;
-uint32_t last_blink_time = 0;
-bool justStartedBlink = false;
-const int blink_total = 10;
-const int blink_interval_ms = 50;
-bool bothLedState = false;
-bool bpmLedState = false;
-
-
-// Setup Functions
-void SetupFootswitches() {
-    footswitch1.Init(D25, 1000);
-    footswitch2.Init(D26, 1000);
-}
 
 void SetupDips() {
     dsy_gpio_pin dipsPins[4] = {
@@ -151,54 +129,13 @@ void SetupKnobs() {
 
 // Hardware Initialization
 void SetupHardware() {
-    hw.Configure();
-    hw.Init(true);
-    hw.SetAudioBlockSize(512); // Number of samples handled per callback
-    hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
+    
 
-    SetupFootswitches();
     SetupDips();
     SetupSwitches();
     SetupKnobs();
 }
 
-
-// Footswitch Update
-void updateFootswitches() {
-    footswitch1.Debounce();  // Update switch state
-    footswitch2.Debounce();  // Update switch state
-    
-    if (footswitch1.RisingEdge()) {
-        footswitch1State = !footswitch1State;
-        hw.PrintLine("Footswitch 1 toggled");
-    }
-    
-    if (footswitch2.RisingEdge()) {
-        footswitch2State = !footswitch2State;
-        hw.PrintLine("Footswitch 2 toggled");
-    }
-    
-    // Enter DFU mode if Footswitch 1 is held for more than 3 seconds
-    if (footswitch1.TimeHeldMs() > 3000) {
-        hw.PrintLine("Entering DFU Mode...");
-        System::ResetToBootloader(); // Restart in bootloader mode
-    }
-
-    // Start blinking if both footswitches are held for more than 1 second
-    if (!blink_active && footswitch1.Pressed() && footswitch2.Pressed() &&
-        footswitch1.TimeHeldMs() > 1000 && footswitch2.TimeHeldMs() > 1000) {
-        hw.PrintLine("Both footswitches held for 1 second");
-        blink_active = true;
-        justStartedBlink = true;  // Will trigger initial blink
-        blink_count = 0;
-        bothLedState = false;
-    }
-
-    // Handle blinking LEDs
-    if (blink_active) {
-        blinkBothLeds();
-    }
-}
 
 int ReadDipSwitches()
 {
@@ -266,7 +203,6 @@ void updateKnobs()
 
 // General Controls Update
 void updateControls() {
-    updateFootswitches();
     updateDips();
     updateSwitches();
     updateKnobs();

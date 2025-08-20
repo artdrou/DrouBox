@@ -2,7 +2,7 @@
 TARGET = Tuner
 
 # Sources
-CPP_SOURCES = main.cpp controls.cpp
+CPP_SOURCES = main.cpp leds.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/
