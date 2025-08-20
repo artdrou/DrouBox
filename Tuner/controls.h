@@ -13,8 +13,7 @@ using namespace daisy::seed;
 // --- Global Hardware Objects ---
 extern DaisySeed hw;
 
-// LEDs & Footswitches
-extern Led led1, led2;
+// Footswitches
 extern Switch footswitch1, footswitch2;
 extern bool footswitch1State, footswitch2State;
 
@@ -61,15 +60,6 @@ extern float knob4;
 extern float knob5;
 extern float knob6;
 
-// Blink Logic
-extern bool blink_active;
-extern int blink_count;
-extern uint32_t last_blink_time;
-extern bool justStartedBlink;
-extern const int blink_total;
-extern const int blink_interval_ms;
-extern bool bothLedState;
-
 // --- ADC Channels ---
 enum AdcChannel
 {
@@ -85,7 +75,6 @@ enum AdcChannel
 // --- Setup Functions ---
 void SetupHardware();
 void SetupFootswicthes();
-void SetupLeds();
 void SetupDips();
 void SetupSwitches();
 void SetupKnobs();
@@ -95,10 +84,7 @@ int ReadDipSwitches();
 void GetDipSwitchesStates(int states[4]);
 void GetSwitchesStates();
 
-
 // --- Update Functions ---
-void updateLeds();
-void blinkBothLeds();
 void updateFootswitches();
 void updateDips();
 void updateSwitches();

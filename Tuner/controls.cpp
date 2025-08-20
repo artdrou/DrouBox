@@ -10,9 +10,6 @@ using namespace daisy::seed;
 // Hardware instance
 extern DaisySeed hw;
 
-// LED instances
-Led led1, led2;
-
 // Footswitch instances
 Switch footswitch1, footswitch2;
 bool footswitch1State = false;
@@ -56,11 +53,6 @@ bool bpmLedState = false;
 void SetupFootswitches() {
     footswitch1.Init(D25, 1000);
     footswitch2.Init(D26, 1000);
-}
-
-void SetupLeds() {
-    led1.Init(A7, true, 1000);
-    led2.Init(A8, true, 1000);
 }
 
 void SetupDips() {
@@ -165,57 +157,9 @@ void SetupHardware() {
     hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
     SetupFootswitches();
-    SetupLeds();
     SetupDips();
     SetupSwitches();
     SetupKnobs();
-
-    // Turn on LEDs to indicate initialization
-    hw.SetLed(true);
-    led1.Set(true);
-    led2.Set(true);
-}
-
-// LED Control Functions
-void updateLeds() {
-    led1.Update();
-    led2.Update();
-}
-
-void blinkBothLeds() {
-    if (blink_active) {
-        uint32_t now = System::GetNow();
-        
-        // Initialize blink start time ONCE
-        if (justStartedBlink) {
-            last_blink_time = now;
-            justStartedBlink = false;  // Only set once!
-        }
-
-        // Blink LED toggle every interval
-        if ((now - last_blink_time) >= blink_interval_ms) {
-            bothLedState = !bothLedState; // Toggle LED state
-            led1.Set(!bothLedState);
-            led2.Set(!bothLedState);
-            updateLeds();
-            last_blink_time = now;  // Update AFTER toggle
-
-            // Count blinks and stop after a certain number of blinks
-            if (!bothLedState) { // Only count when turning off
-                blink_count++;
-                if (blink_count >= blink_total) {
-                    blink_active = false;
-                    // Ensure LEDs stay off after last blink
-                    led1.Set(!onOff);
-                    led2.Set(true);
-                    blink_count = 0;
-                    last_blink_time = 0;
-                    bothLedState = false;
-                    updateLeds();
-                }
-            }
-        }
-    }
 }
 
 
@@ -226,13 +170,11 @@ void updateFootswitches() {
     
     if (footswitch1.RisingEdge()) {
         footswitch1State = !footswitch1State;
-        led1.Set(!footswitch1State);
         hw.PrintLine("Footswitch 1 toggled");
     }
     
     if (footswitch2.RisingEdge()) {
         footswitch2State = !footswitch2State;
-        led2.Set(!footswitch2State);
         hw.PrintLine("Footswitch 2 toggled");
     }
     
@@ -325,7 +267,6 @@ void updateKnobs()
 // General Controls Update
 void updateControls() {
     updateFootswitches();
-    updateLeds();
     updateDips();
     updateSwitches();
     updateKnobs();

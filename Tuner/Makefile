@@ -2,9 +2,7 @@
 TARGET = Tuner
 
 # Sources
-CPP_SOURCES = main.cpp controls.cpp \
-../../../drouAudioLib/src/mapping.cpp \
-../../../drouAudioLib/src/fft.cpp
+CPP_SOURCES = main.cpp controls.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

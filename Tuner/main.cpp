@@ -2,6 +2,7 @@
 #include "daisy_petal.h"
 #include "daisysp.h"
 #include "controls.h"
+#include "led.h"
 #include <utils/mapping.h>
 
 using namespace daisy;
@@ -25,11 +26,25 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 int main(void)
 {
     SetupHardware();
+    LedManager ledMgr, ledMgr2;
+    ledMgr.Init(A7);
+    ledMgr2.Init(A8);
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
+
+    ledMgr2.InitBlinking(50, 10);
+
     while (1)
     {
         updateControls();
+        ledMgr.Set(footswitch1State);
+        if (footswitch2State) {
+            ledMgr2.HandleBlink();
+        }
+        else {
+            ledMgr2.StopBlinking();
+            ledMgr2.InitBlinking(50, 10);
+        }
         System::Delay(5);
     }
 }
