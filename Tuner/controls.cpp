@@ -12,10 +12,7 @@ extern DaisySeed hw;
 
 onOffOnSwitch switches[3];
 
-// DIP switch pins
-dsy_gpio dip1, dip2, dip3, dip4;
-int dips_last_value = -1; // Invalid initial value to force first print
-int dips_current_value = -1;
+
 
 // Control variables
 float onOff;
@@ -32,6 +29,14 @@ float lastValueKnob3;
 float lastValueKnob4;
 float lastValueKnob5;
 float lastValueKnob6;
+
+
+// DIP SWITCHES --------------------------------------------------------------------------------------
+
+// DIP switch pins
+dsy_gpio dip1, dip2, dip3, dip4;
+int dips_last_value = -1; // Invalid initial value to force first print
+int dips_current_value = -1;
 
 void SetupDips() {
     dsy_gpio_pin dipsPins[4] = {
@@ -51,6 +56,35 @@ void SetupDips() {
         dsy_gpio_init(dips[i]);
     }
 }
+
+int ReadDipSwitches()
+{
+    int value = 0;
+    value |= (!dsy_gpio_read(&dip1)) << 3; // DIP1 → Bit 3
+    value |= (!dsy_gpio_read(&dip2)) << 2; // DIP2 → Bit 2
+    value |= (!dsy_gpio_read(&dip3)) << 1; // DIP3 → Bit 1
+    value |= (!dsy_gpio_read(&dip4)) << 0; // DIP4 → Bit 0
+    return value;
+}
+
+void GetDipSwitchesStates(int states[4])
+{
+    states[0] = !dsy_gpio_read(&dip1);
+    states[1] = !dsy_gpio_read(&dip2);
+    states[2] = !dsy_gpio_read(&dip3);
+    states[3] = !dsy_gpio_read(&dip4);
+}
+
+// DIP Switch Update
+void updateDips() {
+    int dips_current_value = ReadDipSwitches();
+    if (dips_current_value != dips_last_value) {
+        hw.PrintLine("DIP Switch State Changed: %d", dips_current_value);
+        dips_last_value = dips_current_value;
+    }
+}
+
+// SWITCHES ---------------------------------------------------------------------------------
 
 // Initialize the GPIO pins
 void onOffOnSwitch::Init(dsy_gpio_pin leftPin, dsy_gpio_pin rightPin)
@@ -110,60 +144,6 @@ void SetupSwitches() {
     switches[2].Init(hw.GetPin(2),  hw.GetPin(4));
 }
 
-void SetupKnobs() {
-    // ADC channels for knobs
-    AdcChannelConfig adc_config[NUM_ADC_CHANNELS];
-    
-    // Initialize ADC channels for knobs
-    adc_config[KNOB_1].InitSingle(A1);
-    adc_config[KNOB_2].InitSingle(A2);
-    adc_config[KNOB_3].InitSingle(A3);
-    adc_config[KNOB_4].InitSingle(A4);
-    adc_config[KNOB_5].InitSingle(A5);
-    adc_config[KNOB_6].InitSingle(A6);
-    
-    // Initialize the ADC peripheral
-    hw.adc.Init(adc_config, NUM_ADC_CHANNELS);
-    hw.adc.Start(); // Start ADC conversion
-}
-
-// Hardware Initialization
-void SetupHardware() {
-    
-
-    SetupDips();
-    SetupSwitches();
-    SetupKnobs();
-}
-
-
-int ReadDipSwitches()
-{
-    int value = 0;
-    value |= (!dsy_gpio_read(&dip1)) << 3; // DIP1 → Bit 3
-    value |= (!dsy_gpio_read(&dip2)) << 2; // DIP2 → Bit 2
-    value |= (!dsy_gpio_read(&dip3)) << 1; // DIP3 → Bit 1
-    value |= (!dsy_gpio_read(&dip4)) << 0; // DIP4 → Bit 0
-    return value;
-}
-
-void GetDipSwitchesStates(int states[4])
-{
-    states[0] = !dsy_gpio_read(&dip1);
-    states[1] = !dsy_gpio_read(&dip2);
-    states[2] = !dsy_gpio_read(&dip3);
-    states[3] = !dsy_gpio_read(&dip4);
-}
-
-// DIP Switch Update
-void updateDips() {
-    int dips_current_value = ReadDipSwitches();
-    if (dips_current_value != dips_last_value) {
-        hw.PrintLine("DIP Switch State Changed: %d", dips_current_value);
-        dips_last_value = dips_current_value;
-    }
-}
-
 // Switch Update
 void updateSwitches() {
     SwitchState state[3];
@@ -182,6 +162,26 @@ void updateSwitches() {
     }
 }
 
+// KNOBS --------------------------------------------------------------------------------------------------
+
+void SetupKnobs() {
+    // ADC channels for knobs
+    AdcChannelConfig adc_config[NUM_ADC_CHANNELS];
+    
+    // Initialize ADC channels for knobs
+    adc_config[KNOB_1].InitSingle(A1);
+    adc_config[KNOB_2].InitSingle(A2);
+    adc_config[KNOB_3].InitSingle(A3);
+    adc_config[KNOB_4].InitSingle(A4);
+    adc_config[KNOB_5].InitSingle(A5);
+    adc_config[KNOB_6].InitSingle(A6);
+    
+    // Initialize the ADC peripheral
+    hw.adc.Init(adc_config, NUM_ADC_CHANNELS);
+    hw.adc.Start(); // Start ADC conversion
+}
+
+
 void updateKnobs()
 {
     // Read ADC values (normalized to 0-1)
@@ -199,13 +199,6 @@ void updateKnobs()
     knob4 = smoothKnobValue(hw.adc.GetFloat(KNOB_4), lastValueKnob4, smoothing);
     knob5 = smoothKnobValue(hw.adc.GetFloat(KNOB_5), lastValueKnob5, smoothing);
     knob6 = smoothKnobValue(hw.adc.GetFloat(KNOB_6), lastValueKnob6, smoothing);
-}
-
-// General Controls Update
-void updateControls() {
-    updateDips();
-    updateSwitches();
-    updateKnobs();
 }
 
 float smoothKnobValue(float currentValue, float lastSmoothedValue, float alpha)

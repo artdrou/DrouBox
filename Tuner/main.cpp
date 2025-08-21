@@ -2,7 +2,7 @@
 #include "daisy_petal.h"
 #include "daisysp.h"
 #include "leds.h"
-#include "controls.h"
+#include "dipSwitches.h"
 #include "footSwitchs.h"
 #include <utils/mapping.h>
 
@@ -15,9 +15,11 @@ DaisySeed hw;
 // Global declaration because stack overflowed when declared in main
 FootswitchManager fsw1, fsw2;
 LedManager ledMgr1, ledMgr2;
+DipManager dips;
 
 // DFU reboot (DEV ONLY)
 bool reboot = false;
+int dipsValue = 0;
 
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -42,6 +44,14 @@ int main(void)
     // FOOTSWITCH
     fsw1.Init(D25);
     fsw2.Init(D26);
+
+    // DIPS
+    dips.Init(
+        hw.GetPin(1),
+        hw.GetPin(3),
+        hw.GetPin(5),
+        hw.GetPin(6)
+    );
     
     // AUDIO
     hw.StartAudio(AudioCallback);
@@ -62,9 +72,17 @@ int main(void)
                 reboot = false;
             }
         }
+
+
         // LEDS
         ledMgr1.Set(fsw1.GetState());
         ledMgr2.Set(fsw2.GetState());
+
+        // DIPS
+        if (dips.HasChanged()) {
+            dipsValue = dips.GetValue();
+            hw.PrintLine("Changed! New value: %d", dipsValue);
+        }
         System::Delay(10);
     }
 }

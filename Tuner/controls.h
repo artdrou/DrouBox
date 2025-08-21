@@ -13,11 +13,6 @@ using namespace daisy::seed;
 // --- Global Hardware Objects ---
 extern DaisySeed hw;
 
-// DIP Switches
-extern dsy_gpio dip1, dip2, dip3, dip4;
-extern int dips_last_value;
-extern int dips_current_value;
-
 // Enum for switch state
 enum class SwitchState
 {
@@ -69,21 +64,12 @@ enum AdcChannel
 };
 
 // --- Setup Functions ---
-void SetupHardware();
-void SetupDips();
 void SetupSwitches();
 void SetupKnobs();
 
-// --- DIP & Switch Utilities ---
-int ReadDipSwitches();
-void GetDipSwitchesStates(int states[4]);
-void GetSwitchesStates();
-
 // --- Update Functions ---
-void updateDips();
 void updateSwitches();
 void updateKnobs();
-void updateControls();
 
 // --- Utils functions ---
 float smoothKnobValue(float currentValue, float lastSmoothedValue, float alpha);
