@@ -5,6 +5,7 @@
 #include "dipSwitches.h"
 #include "footSwitchs.h"
 #include "onOffOnSwitches.h"
+#include "knobs.h"
 #include <utils/mapping.h>
 
 using namespace daisy;
@@ -18,10 +19,15 @@ FootswitchManager fsw1, fsw2;
 LedManager ledMgr1, ledMgr2;
 DipManager dips;
 OnOffOnSwitchManager sw1;
+// KnobsManager knobMgr;
+KnobsManager* knobMgr = new KnobsManager;
+
+dsy_gpio_pin knobPins[1] = { A1 };
 
 // DFU reboot (DEV ONLY)
 bool reboot = false;
 int dipsValue = 0;
+float knobValue = 0.f;
 
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -58,6 +64,9 @@ int main(void)
     // ON-OFF-ON SWITCHES
     sw1.Init(hw.GetPin(14), hw.GetPin(13));
     
+    // KNOBS
+    // knobMgr.Init(hw, knobPins, 1);
+    knobMgr->Init(hw, knobPins, 1);
     // AUDIO
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
@@ -94,6 +103,14 @@ int main(void)
         {
             hw.PrintLine("Switch state changed: %s", sw1.ToString(sw1.GetState()));
         }
+
+        // KNOBS
+        knobMgr->Update();
+        if (knobMgr->HasChanged(0, 0.001f)) {
+            knobValue = knobMgr->GetValue(0);
+            hw.PrintLine("Knob value has changed: %d", (int)(100.f*knobValue));
+        }
+        
         System::Delay(10);
     }
 }

@@ -2,7 +2,7 @@
 TARGET = Tuner
 
 # Sources
-CPP_SOURCES = main.cpp leds.cpp dipSwitches.cpp onOffOnSwitches.cpp
+CPP_SOURCES = main.cpp leds.cpp dipSwitches.cpp onOffOnSwitches.cpp knobs.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/
