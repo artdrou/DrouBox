@@ -1,12 +1,14 @@
 #include "daisy_seed.h"
 #include "daisy_petal.h"
 #include "daisysp.h"
+
 #include "leds.h"
 #include "dipSwitches.h"
-#include "footSwitchs.h"
+#include "footSwitches.h"
 #include "onOffOnSwitches.h"
 #include "knobs.h"
-#include <utils/mapping.h>
+
+#include "utils/mapping.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -19,8 +21,7 @@ FootswitchManager fsw1, fsw2;
 LedManager ledMgr1, ledMgr2;
 DipManager dips;
 OnOffOnSwitchManager sw1;
-// KnobsManager knobMgr;
-KnobsManager* knobMgr = new KnobsManager;
+KnobsManager knobMgr;
 
 dsy_gpio_pin knobPins[1] = { A1 };
 
@@ -66,7 +67,7 @@ int main(void)
     
     // KNOBS
     // knobMgr.Init(hw, knobPins, 1);
-    knobMgr->Init(hw, knobPins, 1);
+    knobMgr.Init(hw, knobPins, 1);
     // AUDIO
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
@@ -105,9 +106,9 @@ int main(void)
         }
 
         // KNOBS
-        knobMgr->Update();
-        if (knobMgr->HasChanged(0, 0.001f)) {
-            knobValue = knobMgr->GetValue(0);
+        knobMgr.Update();
+        if (knobMgr.HasChanged(0, 0.001f)) {
+            knobValue = knobMgr.GetValue(0);
             hw.PrintLine("Knob value has changed: %d", (int)(100.f*knobValue));
         }
         

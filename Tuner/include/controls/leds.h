@@ -15,7 +15,6 @@ public:
     void StopBlinking();
     void BlinkFor(float durationMs, uint32_t intervalMs, uint32_t now);
     bool IsBlinking();
-
 private:
     Led led;
     bool ledState;

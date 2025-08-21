@@ -1,4 +1,4 @@
-#include "OnOffOnSwitches.h"
+#include "onOffOnSwitches.h"
 
 // Initialize the GPIO pins
 void OnOffOnSwitchManager::Init(dsy_gpio_pin leftPin, dsy_gpio_pin rightPin)
