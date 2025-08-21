@@ -13,34 +13,7 @@ using namespace daisy::seed;
 // --- Global Hardware Objects ---
 extern DaisySeed hw;
 
-// Enum for switch state
-enum class SwitchState
-{
-    LEFT,
-    OFF,
-    RIGHT
-};
 
-// onOffOnSwitch class
-class onOffOnSwitch
-{
-  public:
-    void Init(dsy_gpio_pin leftPin, dsy_gpio_pin rightPin);
-    void Update();
-    void UpdateLastState();
-    const char* switchStateToString(SwitchState state);
-
-    SwitchState GetState() const;
-    SwitchState GetLastState() const;
-    
-    SwitchState state;
-  private:
-    dsy_gpio switchesPositions[2];
-    SwitchState lastState = SwitchState::OFF;
-};
-
-// Declare your switches externally if needed
-extern onOffOnSwitch switches[3];
 
 // Control Parameters
 extern float onOff;
@@ -64,11 +37,9 @@ enum AdcChannel
 };
 
 // --- Setup Functions ---
-void SetupSwitches();
 void SetupKnobs();
 
 // --- Update Functions ---
-void updateSwitches();
 void updateKnobs();
 
 // --- Utils functions ---

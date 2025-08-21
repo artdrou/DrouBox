@@ -4,6 +4,7 @@
 #include "leds.h"
 #include "dipSwitches.h"
 #include "footSwitchs.h"
+#include "onOffOnSwitches.h"
 #include <utils/mapping.h>
 
 using namespace daisy;
@@ -16,6 +17,7 @@ DaisySeed hw;
 FootswitchManager fsw1, fsw2;
 LedManager ledMgr1, ledMgr2;
 DipManager dips;
+OnOffOnSwitchManager sw1;
 
 // DFU reboot (DEV ONLY)
 bool reboot = false;
@@ -52,6 +54,9 @@ int main(void)
         hw.GetPin(5),
         hw.GetPin(6)
     );
+
+    // ON-OFF-ON SWITCHES
+    sw1.Init(hw.GetPin(14), hw.GetPin(13));
     
     // AUDIO
     hw.StartAudio(AudioCallback);
@@ -82,6 +87,12 @@ int main(void)
         if (dips.HasChanged()) {
             dipsValue = dips.GetValue();
             hw.PrintLine("Changed! New value: %d", dipsValue);
+        }
+
+        // ON-OFF-ON SWITCHES
+        if(sw1.HasChanged())
+        {
+            hw.PrintLine("Switch state changed: %s", sw1.ToString(sw1.GetState()));
         }
         System::Delay(10);
     }
