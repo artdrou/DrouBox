@@ -4,13 +4,15 @@ using namespace daisy;
 
 class DipManager {
   public:
-    void Init(dsy_gpio_pin pin1, dsy_gpio_pin pin2, dsy_gpio_pin pin3, dsy_gpio_pin pin4);
+    void Init(dsy_gpio_pin pins[], size_t n);
     int GetValue();
     bool HasChanged();
     int GetLastValue() const;
     
+    ~DipManager() { delete[] dips; }
 
   private:
-    dsy_gpio dips[4];
+    dsy_gpio* dips = nullptr;
+    int nDips;
     int lastValue = -1;
 };

@@ -8,7 +8,7 @@ class OnOffOnSwitchManager
 public:
     enum class State { LEFT, OFF, RIGHT };
 
-    void Init(dsy_gpio_pin leftPin, dsy_gpio_pin rightPin);
+    void Init(dsy_gpio_pin pins[], size_t n);
 
     void Update();             // Read hardware
     bool HasChanged();         // Returns true if state changed since last Update
@@ -16,8 +16,11 @@ public:
     State GetLastState() const;// Previous state
     const char* ToString(State s) const;
 
+    ~OnOffOnSwitchManager() { delete[] swPins; }
+
 private:
-    dsy_gpio pins[2]; // Left + Right contacts
+    dsy_gpio* swPins = nullptr;
+    int nSwPins;
     State state      = State::OFF;
     State lastState  = State::OFF;
 };

@@ -4,7 +4,7 @@ using namespace daisy;
 
 class KnobsManager {
 public:
-    void Init(DaisySeed& hwRef, dsy_gpio_pin knobPins[], size_t n);
+    void Init(DaisySeed& hwRef, const Pin knobPins[], size_t n);
     void Update();                     // read all knobs once per loop
     float GetValue(size_t index);      // get latest value
     bool HasChanged(size_t index, float threshold = 0.01f);

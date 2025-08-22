@@ -1,3 +1,5 @@
+#pragma once
+
 #include "daisy_seed.h"
 #include "daisy_petal.h"
 #include <vector>

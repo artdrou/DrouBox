@@ -1,7 +1,7 @@
 #include "knobs.h"
 #include <cmath>
 
-void KnobsManager::Init(DaisySeed& hwRef, dsy_gpio_pin knobPins[], size_t n) {
+void KnobsManager::Init(DaisySeed& hwRef, const Pin knobPins[], size_t n) {
     if(n > MAX_KNOBS) n = MAX_KNOBS;
     numKnobs = n;
     hwPtr = &hwRef;

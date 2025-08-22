@@ -7,6 +7,7 @@
 #include "footSwitches.h"
 #include "onOffOnSwitches.h"
 #include "knobs.h"
+#include "controls.h"
 
 #include "utils/mapping.h"
 
@@ -15,21 +16,64 @@ using namespace daisysp;
 using namespace daisy::seed;
 
 DaisySeed hw;
+Controls controls;
 
-// Global declaration because stack overflowed when declared in main
-FootswitchManager fsw1, fsw2;
-LedManager ledMgr1, ledMgr2;
-DipManager dips;
-OnOffOnSwitchManager sw1;
-KnobsManager knobMgr;
-
-dsy_gpio_pin knobPins[1] = { A1 };
-
-// DFU reboot (DEV ONLY)
+// DEV ONLY REBOOT
 bool reboot = false;
-int dipsValue = 0;
-float knobValue = 0.f;
 
+void rebootDfuUpdate() {
+    
+    if (controls.GetFootswitch(0).Held() > 3000) {
+        reboot = true;
+    }
+    if (reboot) {
+        controls.GetLed(0).BlinkFor(500, 50, System::GetNow());
+        controls.GetLed(1).BlinkFor(500, 50, System::GetNow());
+        if (!controls.GetLed(0).IsBlinking()) {
+            System::ResetToBootloader(); // Restart in bootloader mode
+            reboot = false;
+        }
+    }
+}
+
+void testHardware() {
+    // Footswitches
+    for (size_t i = 0; i < controls.NumFootswitches(); ++i) {
+        controls.GetFootswitch(i).Update();
+        if (controls.GetFootswitch(i).Pressed()) {
+            hw.PrintLine("Footswitch %d Pressed -> %d", i+1, controls.GetFootswitch(i).GetState());
+        }
+    }
+
+    // Leds
+    for (size_t i = 0; i < controls.NumLeds(); ++i) {
+        controls.GetLed(i).Set(controls.GetFootswitch(i).GetState());
+    }
+
+    // Dips
+    for (size_t i = 0; i < controls.NumDips(); ++i) {
+        if (controls.GetDips(i).HasChanged()) {
+            hw.PrintLine("Dips value has changed -> %d", controls.GetDips(i).GetValue());
+        }
+    }
+
+    // Switches
+    for (size_t i = 0; i < controls.NumSwitches(); ++i) {
+        if (controls.GetSwitch(i).HasChanged()) {
+            hw.PrintLine("Switch %d value has changed -> %s", i+1, controls.GetSwitch(i).ToString(controls.GetSwitch(i).GetState()));
+        }
+    }
+
+    // knobs
+    controls.GetKnobs().Update();
+    for (size_t i = 0; i < controls.NumKnobs(); ++i) {
+        if (controls.GetKnobs().HasChanged(i)) {
+            hw.PrintLine("knob %d value has changed -> %d", i+1, (int)(1000.f*controls.GetKnobs().GetValue(i)));
+        }
+    }
+}
+
+// AUDIO CALLBACK =========================================================================
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
@@ -39,79 +83,31 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
     }
 }
 
+
+
+// MAIN ===================================================================================
+
 int main(void)
 {
-    hw.Configure();
     hw.Init(true);
-    hw.SetAudioBlockSize(512); // Number of samples handled per callback
+    hw.SetAudioBlockSize(1024); // Number of samples handled per callback
     hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
-    // LEDS
-    ledMgr1.Init(A7);
-    ledMgr2.Init(A8);
-
-    // FOOTSWITCH
-    fsw1.Init(D25);
-    fsw2.Init(D26);
-
-    // DIPS
-    dips.Init(
-        hw.GetPin(1),
-        hw.GetPin(3),
-        hw.GetPin(5),
-        hw.GetPin(6)
-    );
-
-    // ON-OFF-ON SWITCHES
-    sw1.Init(hw.GetPin(14), hw.GetPin(13));
-    
-    // KNOBS
-    // knobMgr.Init(hw, knobPins, 1);
-    knobMgr.Init(hw, knobPins, 1);
     // AUDIO
     hw.StartAudio(AudioCallback);
     hw.StartLog(false);
+
+    // CONTROLS
+    controls.Init(hw);
+
+
     while (1)
     {
-        // fOOTSWITCH
-        fsw1.Update();
-        fsw2.Update();
-        if (fsw1.Held() > 3000) {
-            reboot = true;
-        }
-        if (reboot) {
-            ledMgr1.BlinkFor(500, 50, System::GetNow());
-            ledMgr2.BlinkFor(500, 50, System::GetNow());
-            if (!ledMgr1.IsBlinking()) {
-                System::ResetToBootloader(); // Restart in bootloader mode
-                reboot = false;
-            }
-        }
+        testHardware();
 
+        // REBOOT BOARD DEV ONLY !!!!!!!!
+        rebootDfuUpdate();
 
-        // LEDS
-        ledMgr1.Set(fsw1.GetState());
-        ledMgr2.Set(fsw2.GetState());
-
-        // DIPS
-        if (dips.HasChanged()) {
-            dipsValue = dips.GetValue();
-            hw.PrintLine("Changed! New value: %d", dipsValue);
-        }
-
-        // ON-OFF-ON SWITCHES
-        if(sw1.HasChanged())
-        {
-            hw.PrintLine("Switch state changed: %s", sw1.ToString(sw1.GetState()));
-        }
-
-        // KNOBS
-        knobMgr.Update();
-        if (knobMgr.HasChanged(0, 0.001f)) {
-            knobValue = knobMgr.GetValue(0);
-            hw.PrintLine("Knob value has changed: %d", (int)(100.f*knobValue));
-        }
-        
         System::Delay(10);
     }
 }

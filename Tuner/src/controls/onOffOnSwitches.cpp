@@ -1,23 +1,24 @@
 #include "onOffOnSwitches.h"
 
 // Initialize the GPIO pins
-void OnOffOnSwitchManager::Init(dsy_gpio_pin leftPin, dsy_gpio_pin rightPin)
+void OnOffOnSwitchManager::Init(dsy_gpio_pin pins[], size_t n)
 {
-    dsy_gpio_pin hwPins[2] = {leftPin, rightPin};
-    for(int i = 0; i < 2; i++)
+    nSwPins = n;
+    swPins = new dsy_gpio[nSwPins];
+    for(int i = 0; i < nSwPins; i++)
     {
-        pins[i].pin  = hwPins[i];
-        pins[i].mode = DSY_GPIO_MODE_INPUT;
-        pins[i].pull = DSY_GPIO_PULLUP;
-        dsy_gpio_init(&pins[i]);
+        swPins[i].pin  = pins[i];
+        swPins[i].mode = DSY_GPIO_MODE_INPUT;
+        swPins[i].pull = DSY_GPIO_PULLUP;
+        dsy_gpio_init(&swPins[i]);
     }
 }
 
 // Update state from hardware
 void OnOffOnSwitchManager::Update()
 {
-    bool left  = !dsy_gpio_read(&pins[0]);
-    bool right = !dsy_gpio_read(&pins[1]);
+    bool left  = !dsy_gpio_read(&swPins[0]);
+    bool right = !dsy_gpio_read(&swPins[1]);
 
     if(left && !right)
         state = State::LEFT;
