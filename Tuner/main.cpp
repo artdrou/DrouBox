@@ -2,11 +2,6 @@
 #include "daisy_petal.h"
 #include "daisysp.h"
 
-#include "leds.h"
-#include "dipSwitches.h"
-#include "footSwitches.h"
-#include "onOffOnSwitches.h"
-#include "knobs.h"
 #include "controls.h"
 
 #include "utils/mapping.h"
