@@ -1,5 +1,5 @@
 # Project Name
-TARGET = Tuner
+TARGET = Template
 
 # Automatically collect all cpp sources in src and subfolders
 CPP_SOURCES :=  $(wildcard src/**/**/*.cpp) \
@@ -23,6 +23,7 @@ C_INCLUDES += -I./include \
               -I./include/app \
               -I./include/app/core \
               -I./include/app/effects \
+              -I./include/utils \
               -I ../lib/include \
               -I ../lib/include/controls \
               -I../../../drouAudioLib \
