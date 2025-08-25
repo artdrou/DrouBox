@@ -1,5 +1,5 @@
 # Project Name
-TARGET = Template
+TARGET = Tuner
 
 # Automatically collect all cpp sources in src and subfolders
 CPP_SOURCES :=  $(wildcard src/**/**/*.cpp) \
@@ -8,7 +8,10 @@ CPP_SOURCES :=  $(wildcard src/**/**/*.cpp) \
                 $(wildcard *.cpp) \
                 $(wildcard ../lib/src/**/*.cpp) \
                 $(wildcard ../lib/src/*.cpp) \
-                $(wildcard ../lib/*.cpp)
+                $(wildcard ../lib/*.cpp) \
+                $(wildcard ../../../drouAudioLib/*.cpp) \
+                $(wildcard ../../../drouAudioLib/**/*.cpp) \
+                $(wildcard ../../../drouAudioLib/**/**/*.cpp)
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

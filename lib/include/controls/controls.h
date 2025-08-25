@@ -17,6 +17,7 @@ public:
 
     void Init(DaisySeed& hw);
     void Update();
+    DaisySeed* GetHwPtr() { return hwPtr; };
 
     // Accessors
     KnobsManager& GetKnobs() { return knobs; }
@@ -33,7 +34,7 @@ public:
     static constexpr size_t NumKnobs() { return ControlsConfig::numKnobs; }
 
 private:
-    DaisySeed* hwPtr;
+    DaisySeed* hwPtr = nullptr;
 
     // Managers
     KnobsManager knobs;
