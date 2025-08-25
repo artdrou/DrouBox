@@ -5,7 +5,7 @@
 #include "controls.h"
 #include "effectsManager.h"
 #include "controlMapper.h"
-#include "gain.h"
+#include "tuner.h"
 
 #include "logging.h"
 
@@ -19,7 +19,7 @@ Controls controls;
 ControlMapper mapper(controls);
 
 EffectManager effectManager;
-// Effect effect;
+Tuner tuner;
 
 // DEV ONLY REBOOT & LOG
 HardwareLogger logger(controls, hw);
@@ -65,16 +65,16 @@ int main(void)
     controls.Init(hw);
 
     // Effects
-    // effectManager.AddEffect(&effect);
+    effectManager.AddEffect(&tuner);
 
     while (1)
     {
-        logger.TestHardware();
+        // logger.TestHardware();
 
         effectManager.UpdateParameters(mapper);
         effectManager.UpdateUI(controls);
+
         // // REBOOT BOARD DEV ONLY !!!!!!!!
-        
         rebootDfuUpdate();
 
         System::Delay(10);
