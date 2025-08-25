@@ -14,6 +14,7 @@ public:
     void UpdateParameters(const ControlMapper& mapper);
     void Process(const float* in, float* out, size_t size);
     void UpdateUI(Controls& controls);
+    void Bypass(const float* in, float* out, size_t size);
 
 private:
     std::vector<EffectBase*> effects_;

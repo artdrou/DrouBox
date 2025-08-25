@@ -20,9 +20,17 @@ void EffectManager::UpdateParameters(const ControlMapper& mapper) {
 void EffectManager::Process(const float* in, float* out, size_t size) {
     if (!effects_.empty())
         effects_[activeIndex_]->Process(in, out, size);
+    else
+        Bypass(in, out, size);
 }
 
 void EffectManager::UpdateUI(Controls& controls) {
     if (!effects_.empty())
         effects_[activeIndex_]->UpdateUI(controls);
+}
+
+void EffectManager::Bypass(const float* in, float* out, size_t size) {
+    for (size_t i = 0; i < size; ++i) {
+        out[i] = in[i];
+    }
 }
