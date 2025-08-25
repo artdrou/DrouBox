@@ -2,7 +2,8 @@
 TARGET = Tuner
 
 # Automatically collect all cpp sources in src and subfolders
-CPP_SOURCES :=  $(wildcard src/**/*.cpp) \
+CPP_SOURCES :=  $(wildcard src/**/**/*.cpp) \
+                $(wildcard src/**/*.cpp) \
                 $(wildcard src/*.cpp) \
                 $(wildcard *.cpp) \
                 $(wildcard ../lib/src/**/*.cpp) \
@@ -19,10 +20,14 @@ SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 # Include paths
 C_INCLUDES += -I./include \
               -I./include/controls \
-			  -I../../../drouAudioLib \
+              -I./include/app \
+              -I./include/app/core \
+              -I./include/app/effects \
               -I ../lib/include \
               -I ../lib/include/controls \
+              -I../../../drouAudioLib \
               -I../../../drouAudioLib/include
+              
 
 # Include libDaisy build system
 include $(SYSTEM_FILES_DIR)/Makefile

@@ -16,6 +16,7 @@ public:
     Controls() {}
 
     void Init(DaisySeed& hw);
+    void Update();
 
     // Accessors
     KnobsManager& GetKnobs() { return knobs; }

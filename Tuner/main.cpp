@@ -3,8 +3,10 @@
 #include "daisysp.h"
 
 #include "controls.h"
+#include "effectsManager.h"
+#include "controlMapper.h"
+#include "gain.h"
 
-#include "utils/mapping.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -12,6 +14,10 @@ using namespace daisy::seed;
 
 DaisySeed hw;
 Controls controls;
+ControlMapper mapper(controls);
+
+EffectManager effectManager;
+Gain gainEffect;
 
 // DEV ONLY REBOOT
 bool reboot = false;
@@ -72,10 +78,7 @@ void testHardware() {
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-    for (size_t i = 0; i < size; i++)
-    {
-        out[0][i] = in[0][i];
-    }
+    effectManager.Process(in[0], out[0], size);
 }
 
 
@@ -95,11 +98,13 @@ int main(void)
     // CONTROLS
     controls.Init(hw);
 
+    // Effects
+    effectManager.AddEffect(&gainEffect);
 
     while (1)
     {
-        testHardware();
-
+        effectManager.UpdateParameters(mapper);
+        effectManager.UpdateUI(controls);
         // REBOOT BOARD DEV ONLY !!!!!!!!
         rebootDfuUpdate();
 

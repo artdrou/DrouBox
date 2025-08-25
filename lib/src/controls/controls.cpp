@@ -40,3 +40,18 @@ void Controls::Init(DaisySeed& hw)
         dips[i].Init(pinArray, ControlsConfig::dips[i].size());
     }
 }
+
+void Controls::Update() {
+    for(size_t i = 0; i < ControlsConfig::numFootswitches; i++)
+    {
+        GetFootswitch(i).Update();
+    }
+    for(size_t i = 0; i < ControlsConfig::numKnobs; i++)
+    {
+        GetKnobs().Update();
+    }
+    for(size_t i = 0; i < ControlsConfig::numSwitches; i++)
+    {
+        GetSwitch(i).Update();
+    }
+}
