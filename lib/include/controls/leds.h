@@ -10,6 +10,7 @@ public:
     void Init(Pin pin);
     void Update();
     void Set(bool state);
+    void Set(float brightness);
     void Toggle();
     bool GetState();
     void StopBlinking();

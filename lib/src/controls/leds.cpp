@@ -23,6 +23,16 @@ void LedManager::Set(bool state) {
     }
 }
 
+void LedManager::Set(float brightness) {
+    if (!blinking) {
+        if (brightness < 0.0f) brightness = 0.0f;
+        if (brightness > 1.0f) brightness = 1.0f;
+        ledState = (brightness > 0.0f);
+        led.Set(brightness);
+        led.Update();
+    }
+}
+
 void LedManager::Toggle() {
     Set(!ledState);
 }

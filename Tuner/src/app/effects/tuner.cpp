@@ -4,71 +4,85 @@
 #include <cmath>
 #include "tuner.h"
 #include "controlMapper.h"
+#include "controls.h"
 
-void Tuner::UpdateParameters(const ControlMapper& mapper) {
-    params_ = mapper.MapTuner();
+void Tuner::UpdateParameters() {
+    params_ = mapper_.MapTuner();
 };
 
 void Tuner::Process(const float* in, float* out, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         out[i] = in[i];
     }
+    if (!params_.bypass) {
+        static int callbackCount = 0;
+        callbackCount++;
+        if(callbackCount % 50 == 0){
+            DetectPitch(in, size, params_.sampleRate);
+        }
+    }    
 }
 
-void Tuner::UpdateUI(Controls& controls) {
+void Tuner::UpdateUI() {
+    Controls& controls_ = mapper_.GetControls();
+    frequency = params_.frequency;
+    // frequency = frequency_;
     if (!params_.bypass) {
-        UpdateTuningDifference(controls);
-        UpdateTuningLeds(controls);
+        UpdateTuningDifference();
+        UpdateTuningLeds();
+    }
+    else {
+        controls_.GetLed(0).Set(false);
+        controls_.GetLed(1).Set(false);
     }
     
 }
 
-void Tuner::FindFrequency() {
-    std::vector<float> buffer(in, in + size);
-    auto fftResult = computeFFT(buffer);
-
-    size_t peakIndex = 0;
-    float maxMag = 0.0f;
-    for (size_t i = 0; i < fftResult.size() / 2; ++i) {
-        float mag = std::abs(fftResult[i]);
-        if (mag > maxMag) {
-            maxMag = mag;
-            peakIndex = i;
-        }
-    }
-
-    lastPeakIndex_ = peakIndex;
-    fftSize_       = fftResult.size();
-    if (closestString_ < 0 && lastPeakIndex_ == 0) return;
-
-    // Recompute frequency using the real sample rate
-    float freq = lastPeakIndex_ * params_.sampleRate / fftSize_;
-
-    smoothedFreq_ = smoothingFactor_ * freq + (1.0f - smoothingFactor_) * smoothedFreq_;
-    params_.smoothedFreq = (int)smoothedFreq_;
+void Tuner::DetectPitch(const float* input, size_t size, float sampleRate) {
+    Controls& controls_ = mapper_.GetControls();
+    frequency_ = CMNDFPitchDetection(input, size, sampleRate, controls_);
 }
 
-void Tuner::UpdateTuningDifference(Controls& controls) {
+void Tuner::UpdateTuningDifference() {
+    Controls& controls_ = mapper_.GetControls();
     float closestDiff = std::numeric_limits<float>::max();
     closestString_ = -1;
     for (size_t i = 0; i < stringFreqs_.size(); ++i) {
-        diff_ = std::abs(params_.smoothedFreq - stringFreqs_[i]);
+        diff_ = std::abs(frequency - stringFreqs_[i]);
         if (diff_ < closestDiff) {
             closestDiff = diff_;
             closestString_ = static_cast<int>(i);
         }
     }
     float target = stringFreqs_[closestString_];
-    diff_ = params_.smoothedFreq - target;
-    controls.GetHwPtr()->PrintLine("Peak frequency: %d Hz (Target: %d Hz)", (int)params_.smoothedFreq, (int)target);
+    diff_ = frequency - target;
+    // controls_.GetHwPtr()->PrintLine("Peak frequency: %d Hz (Target: %d Hz)", (int)diff_, (int)target);
 }
 
-void Tuner::UpdateTuningLeds(Controls& controls) {
-    bool inTune = std::abs(diff_) <= toleranceHz_;
-    bool tooLow = diff_ < -toleranceHz_;
-    bool tooHigh = diff_ > toleranceHz_;
-    controls.GetLed(0).Set(inTune || tooLow);
-    controls.GetLed(1).Set(inTune || tooHigh);
-}
+void Tuner::UpdateTuningLeds() {
+    Controls& controls_ = mapper_.GetControls();
+    float absDiff = std::abs(diff_);
 
-Tuner::effectParams Tuner::GetParams() const { return params_; }
+    // smaller diff => closer to 1.0f
+    float brightness = 1.0f - (absDiff / maxDeviationHz_);
+    if (brightness < 0.0f) brightness = 0.0f;
+    if (brightness > 1.0f) brightness = 1.0f;
+
+    bool tooLow  = diff_ < -toleranceHz_;
+    bool tooHigh = diff_ >  toleranceHz_;
+    bool inTune  = !tooLow && !tooHigh;
+
+    // If in tune, light both with brightness depending on how close we are
+    if (inTune) {
+        controls_.GetLed(0).Set(brightness);
+        controls_.GetLed(1).Set(brightness);
+    }
+    else if (tooLow) {
+        controls_.GetLed(0).Set(brightness);
+        controls_.GetLed(1).Set(0.0f);
+    }
+    else if (tooHigh) {
+        controls_.GetLed(0).Set(0.0f);
+        controls_.GetLed(1).Set(brightness);
+    }
+}

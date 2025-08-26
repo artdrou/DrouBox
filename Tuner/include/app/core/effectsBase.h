@@ -6,9 +6,13 @@ class Controls;
 
 class EffectBase {
 public:
-    virtual void UpdateParameters(const ControlMapper& mapper) = 0;
+
+    EffectBase(ControlMapper& mapperRef) : mapper_(mapperRef) {}
+    virtual void UpdateParameters() = 0;
     virtual void Process(const float* in, float* out, size_t size) = 0;
-    virtual void UpdateUI(Controls& controls) {}
+    virtual void UpdateUI() {}
 
     virtual ~EffectBase() {}
+protected:
+    ControlMapper& mapper_;
 };

@@ -24,6 +24,7 @@ SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 C_INCLUDES += -I./include \
               -I./include/controls \
               -I./include/app \
+              -I./include/dsp \
               -I./include/app/core \
               -I./include/app/effects \
               -I./include/utils \

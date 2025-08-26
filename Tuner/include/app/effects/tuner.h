@@ -2,28 +2,31 @@
 #include <cstddef>
 #include "effectsBase.h"
 #include "audio/dsp/fft.h"
+#include "cmndf.h"
 
 class Tuner : public EffectBase {
 public:
     struct effectParams {
         float sampleRate = 48000;
-        int smoothedFreq = 0;
+        int frequency = 0;
         bool bypass = false;
     };
 
-    Tuner() {}
+    Tuner(ControlMapper& mapperRef)
+        : EffectBase(mapperRef) {}
 
-    void UpdateParameters(const ControlMapper& mapper);
+    void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
-    void UpdateUI(Controls& controls) override;
-    void UpdateTuningDifference(Controls& controls);
-    void UpdateTuningLeds(Controls& controls);
-    void FindFrequency();
-
-    effectParams GetParams() const;
+    void UpdateUI() override;
+    void UpdateTuningDifference();
+    void UpdateTuningLeds();
+    void DetectPitch(const float* input, size_t size, float sampleRate);
 
 private:
-     effectParams params_;
+    effectParams params_;
+
+    int frequency_;
+    int frequency;
 
      // Smoothing
     float smoothedFreq_ = 0.0f;
@@ -38,4 +41,5 @@ private:
     int lastPeakIndex_;
     float diff_;
     size_t fftSize_;
+    int maxDeviationHz_ = 50;
 };

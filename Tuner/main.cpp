@@ -19,7 +19,7 @@ Controls controls;
 ControlMapper mapper(controls);
 
 EffectManager effectManager;
-Tuner tuner;
+Tuner tuner(mapper);
 
 // DEV ONLY REBOOT & LOG
 HardwareLogger logger(controls, hw);
