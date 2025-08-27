@@ -19,6 +19,8 @@ public:
     void Update();
     DaisySeed* GetHwPtr() { return hwPtr; };
 
+    float GetSampleRate() const { return hwPtr ? hwPtr->AudioSampleRate() : 0.0f; }
+
     // Accessors
     KnobsManager& GetKnobs() { return knobs; }
     LedManager& GetLed(size_t i) { return leds[i]; }

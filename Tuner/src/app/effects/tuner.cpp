@@ -14,19 +14,37 @@ void Tuner::Process(const float* in, float* out, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         out[i] = in[i];
     }
+    PushBlock(in, size);
     if (!params_.bypass) {
         static int callbackCount = 0;
         callbackCount++;
         if(callbackCount % 50 == 0){
-            DetectPitch(in, size, params_.sampleRate);
+            DetectPitch();
         }
     }    
 }
 
+void Tuner::PushBlock(const float* input, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        buffer_[writeIndex_] = input[i];
+        writeIndex_ = (writeIndex_ + 1) % buffer_.size();
+    }
+}
+
+std::vector<float> Tuner::GetBufferOrdered() const {
+    std::vector<float> ordered(buffer_.size());
+    size_t N = buffer_.size();
+    size_t start = writeIndex_; // oldest sample
+    for (size_t i = 0; i < N; i++) {
+        ordered[i] = buffer_[(start + i) % N];
+    }
+    return ordered;
+}
+
 void Tuner::UpdateUI() {
     Controls& controls_ = mapper_.GetControls();
-    frequency = params_.frequency;
-    // frequency = frequency_;
+    // frequency = params_.frequency;
+    frequency = frequency_;
     if (!params_.bypass) {
         UpdateTuningDifference();
         UpdateTuningLeds();
@@ -38,13 +56,16 @@ void Tuner::UpdateUI() {
     
 }
 
-void Tuner::DetectPitch(const float* input, size_t size, float sampleRate) {
+void Tuner::DetectPitch() {
     Controls& controls_ = mapper_.GetControls();
-    frequency_ = CMNDFPitchDetection(input, size, sampleRate, controls_);
+    auto window = GetBufferOrdered();
+    frequency_ = CMNDFPitchDetection(
+        window, window.size(), controls_.GetSampleRate(), controls_
+    );
 }
 
 void Tuner::UpdateTuningDifference() {
-    Controls& controls_ = mapper_.GetControls();
+    // Controls& controls_ = mapper_.GetControls();
     float closestDiff = std::numeric_limits<float>::max();
     closestString_ = -1;
     for (size_t i = 0; i < stringFreqs_.size(); ++i) {

@@ -12,18 +12,23 @@ public:
         bool bypass = false;
     };
 
-    Tuner(ControlMapper& mapperRef)
-        : EffectBase(mapperRef) {}
+    Tuner(ControlMapper& mapperRef, size_t windowSize = 4096)
+        : EffectBase(mapperRef), buffer_(windowSize, 0.0f), writeIndex_(0) {}
 
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
+    void PushBlock(const float* input, size_t size);
+    std::vector<float> GetBufferOrdered() const;
     void UpdateUI() override;
     void UpdateTuningDifference();
     void UpdateTuningLeds();
-    void DetectPitch(const float* input, size_t size, float sampleRate);
+    void DetectPitch();
 
 private:
     effectParams params_;
+
+    std::vector<float> buffer_;
+    size_t writeIndex_;
 
     int frequency_;
     int frequency;
@@ -37,7 +42,7 @@ private:
         82.41f, 110.0f, 146.83f, 196.0f, 246.94f, 329.63
     };
     int closestString_ = -1;
-    float toleranceHz_ = 3.0f; // acceptable tuning error
+    float toleranceHz_ = 1.0f; // acceptable tuning error
     int lastPeakIndex_;
     float diff_;
     size_t fftSize_;
