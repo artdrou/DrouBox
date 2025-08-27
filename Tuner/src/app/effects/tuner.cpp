@@ -43,7 +43,6 @@ std::vector<float> Tuner::GetBufferOrdered() const {
 
 void Tuner::UpdateUI() {
     Controls& controls_ = mapper_.GetControls();
-    // frequency = params_.frequency;
     frequency = frequency_;
     if (!params_.bypass) {
         UpdateTuningDifference();
@@ -58,14 +57,21 @@ void Tuner::UpdateUI() {
 
 void Tuner::DetectPitch() {
     Controls& controls_ = mapper_.GetControls();
+
+
     auto window = GetBufferOrdered();
     frequency_ = CMNDFPitchDetection(
-        window, window.size(), controls_.GetSampleRate(), controls_
+        window, controls_.GetSampleRate()
     );
+
+    
+    controls_.GetHwPtr()->PrintLine(
+    "frequency candidate: %d.%02d", 
+    (int)frequency, 
+    (int)((frequency - (int)frequency) * 100));
 }
 
 void Tuner::UpdateTuningDifference() {
-    // Controls& controls_ = mapper_.GetControls();
     float closestDiff = std::numeric_limits<float>::max();
     closestString_ = -1;
     for (size_t i = 0; i < stringFreqs_.size(); ++i) {
@@ -77,7 +83,7 @@ void Tuner::UpdateTuningDifference() {
     }
     float target = stringFreqs_[closestString_];
     diff_ = frequency - target;
-    // controls_.GetHwPtr()->PrintLine("Peak frequency: %d Hz (Target: %d Hz)", (int)diff_, (int)target);
+
 }
 
 void Tuner::UpdateTuningLeds() {

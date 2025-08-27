@@ -30,8 +30,8 @@ private:
     std::vector<float> buffer_;
     size_t writeIndex_;
 
-    int frequency_;
-    int frequency;
+    float frequency_;
+    float frequency;
 
      // Smoothing
     float smoothedFreq_ = 0.0f;
@@ -39,7 +39,7 @@ private:
 
     // Standard guitar tuning frequencies (E A D G B e)
     const std::vector<float> stringFreqs_ = {
-        82.41f, 110.0f, 146.83f, 196.0f, 246.94f, 329.63
+        82.41f, 110.0f, 146.83f, 196.0f, 246.94f, 329.63f
     };
     int closestString_ = -1;
     float toleranceHz_ = 1.0f; // acceptable tuning error

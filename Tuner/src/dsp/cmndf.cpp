@@ -6,7 +6,8 @@
 
 // Step 1: Normalize input buffer
 // Remove DC and normalize amplitude
-std::vector<float> NormalizeBuffer(const std::vector<float>& in, size_t size) {
+std::vector<float> NormalizeBuffer(const std::vector<float>& in) {
+    size_t size = in.size();
     std::vector<float> normalizedBuffer(size);
     // Compute mean
     float mean = 0.0f;
@@ -31,13 +32,23 @@ std::vector<float> NormalizeBuffer(const std::vector<float>& in, size_t size) {
     return normalizedBuffer;
 }
 
-// Step 2: Compute difference function
-std::vector<float> DifferenceFunction(const std::vector<float>& normalizedBuffer) {
-    size_t W = normalizedBuffer.size();
-    size_t maxTau = W/2;
-    std::vector<float> diff(maxTau + 1, 0.0f);
+// Simple downsampling: keep every Nth sample
+std::vector<float> Decimate(const std::vector<float>& input, size_t factor) {
+    std::vector<float> output;
+    output.reserve(input.size() / factor + 1);
 
-    for (size_t tau = 0; tau <= maxTau; tau++) {
+    for (size_t i = 0; i < input.size(); i += factor) {
+        output.push_back(input[i]);
+    }
+
+    return output;
+}
+
+// Step 2: Compute difference function
+std::vector<float> DifferenceFunction(const std::vector<float>& normalizedBuffer, int maxTau) {
+    size_t W = normalizedBuffer.size();
+    std::vector<float> diff(maxTau + 1, 0.0f);
+    for (int tau = 0; tau <= maxTau; tau++) {
         float sum = 0.0f;
         for (size_t i = 1; i < W - tau; i++) {
             float d = normalizedBuffer[i] - normalizedBuffer[i + tau];
@@ -65,47 +76,65 @@ std::vector<float> CumulativeMeanNormalizedDifference(const std::vector<float>& 
 }
 
 // Step 4: Absolute threshold
-// int AbsoluteThreshold(const std::vector<float>& cmndf, float threshold = 0.0f) {
-//     for (size_t tau = 2; tau < cmndf.size(); tau++) {
-//         if (cmndf[tau] <= threshold) {
-//             // slide forward to local minimum
-//             while (tau + 1 < cmndf.size() && cmndf[tau + 1] < cmndf[tau]) {
-//                 tau++;
-//             }
-//             return static_cast<int>(tau);
-//         }
-//     }
-//     return -1; // no pitch detected
-// }
-int AbsoluteThreshold(const std::vector<float>& cmndf, float threshold = 0.4f) {
+float AbsoluteThreshold(const std::vector<float>& cmndf, float threshold = 0.2f) {
     for (size_t tau = 1; tau + 1 < cmndf.size(); tau++) {
         if (cmndf[tau] < cmndf[tau - 1] && cmndf[tau] < cmndf[tau + 1] && cmndf[tau] < threshold) {
-            return static_cast<int>(tau);
+            return static_cast<float>(tau);
         }
     }
-    return -1; // no pitch detected
+    return -1.f; // no pitch detected
+}
+
+// Quadratic interpolation around the minimum
+float ParabolicInterpolation(const std::vector<float>& cmndf, int tau) {
+    if (tau <= 0 || tau >= (int)cmndf.size() - 1) {
+        return (float)tau; // can't interpolate at boundaries
+    }
+
+    float y1 = cmndf[tau - 1];
+    float y2 = cmndf[tau];
+    float y3 = cmndf[tau + 1];
+
+    // Formula for vertex of parabola
+    float denom = (y1 - 2 * y2 + y3);
+    if (fabs(denom) < 1e-12) {
+        return (float)tau; // avoid division by zero
+    }
+
+    float offset = 0.5f * (y1 - y3) / denom;
+    return (float)tau + offset;
 }
 
 
 // Step 5: Convert lag to frequency
 float GetPitchFromLag(int tau, float sampleRate) {
-    if (tau <= 0) return -1.0f;
+    if (tau <= 0.f) return -1.0f;
     return sampleRate / static_cast<float>(tau);
 }
 
 // Main function
-float CMNDFPitchDetection(const std::vector<float>& in, size_t size, float sampleRate, Controls& controls) {
-    // Step 1: normalize
-    auto norm = NormalizeBuffer(in, size);
-    // Step 2: difference function
-    auto diff = DifferenceFunction(norm); // up to Nyquist
-    // Step 3: cumulative mean normalized difference
+float CMNDFPitchDetection(const std::vector<float>& in, float sampleRate, int minFreq) {
+    // Step 1: decimate
+    size_t decimationFactor = 4; // tune as needed
+    float correctionFactor = .991f; // measured with 440Hz
+    float decimatedFs = correctionFactor * sampleRate / static_cast<float>(decimationFactor);
+    auto decim = Decimate(in, decimationFactor);
+    int maxTau = std::min(static_cast<int>(decim.size() - 1), static_cast<int>(decimatedFs / minFreq));
+    // Step 2: normalize
+    auto norm = NormalizeBuffer(decim);
+    // Step 3: difference function
+    auto diff = DifferenceFunction(norm, maxTau);
+    // Step 4: cumulative mean normalized difference
     auto cmndf = CumulativeMeanNormalizedDifference(diff);
-    // // Step 4: find tau
-    int tau = AbsoluteThreshold(cmndf, 0.2f);
-    // Step 5: convert to frequency
-    float frequency = GetPitchFromLag(tau, sampleRate);
-    // controls.GetHwPtr()->PrintLine("frequency candidate: %d", int(frequency));
+    // Step 5: find tau
+    float tau = AbsoluteThreshold(cmndf, 0.1f);
+    // Step 6: Parabolic interpolation
+    if (tau > 0) {
+        tau = ParabolicInterpolation(cmndf, tau);
+    }
+
+    // Step 7: convert to frequency
+    float frequency = GetPitchFromLag(tau, decimatedFs);
     return frequency
     ;
 }
