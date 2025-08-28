@@ -3,7 +3,6 @@
 #include <complex>
 #include <cmath>
 #include "tuner.h"
-#include "controlMapper.h"
 #include "controls.h"
 
 void Tuner::UpdateParameters() {

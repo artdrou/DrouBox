@@ -4,7 +4,6 @@
 
 #include "controls.h"
 #include "effectsManager.h"
-#include "controlMapper.h"
 #include "tuner.h"
 
 #include "logging.h"
@@ -16,7 +15,6 @@ using namespace daisy::seed;
 
 DaisySeed hw;
 Controls controls;
-ControlMapper mapper(controls);
 
 EffectManager effectManager;
 Tuner tuner(controls);

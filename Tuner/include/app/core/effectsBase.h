@@ -1,7 +1,6 @@
 #pragma once
 
 // Forward declarations
-class ControlMapper;
 class Controls;
 
 class EffectBase {
