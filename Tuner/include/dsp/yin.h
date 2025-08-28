@@ -16,10 +16,15 @@ public:
         minFreq_ = f;
         maxTau_ = decimatedSampleRate_/minFreq_;
     }
+    void SetMaxFreq(int f) {
+        maxFreq_ = f;
+        minTau_ = decimatedSampleRate_/maxFreq_;
+    }
     void SetDecimation(size_t d) {
         decimationFactor_ = d;
         decimatedSampleRate_ = sampleRate_/(float)decimationFactor_;
         SetMinFreq(minFreq_);
+        SetMaxFreq(maxFreq_);
     }
     void SetThreshold(float t) { threshold_ = t; }
     void SetCorrectionFactor(float cf) { correctionFactor_ = cf; }
@@ -33,7 +38,7 @@ private:
     int maxFreq_ = 20000;
     int maxTau_ = 4096;
     int minTau_ = 0;
-    float threshold_ = 0.2f;
+    float threshold_ = 0.15f;
     size_t decimationFactor_ = 8;
     float correctionFactor_ = 1.0f;
     float decimatedSampleRate_ = 6000.f;

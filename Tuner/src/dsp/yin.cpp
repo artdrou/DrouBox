@@ -51,17 +51,22 @@ std::vector<float> Yin::DifferenceFunction(const std::vector<float>& normalizedB
 }
 
 std::vector<float> Yin::CumulativeMeanNormalizedDifference(const std::vector<float>& diff) {
-    int N = diff.size();
-    std::vector<float> cmndf(N, 0.0f);
+    int safeMaxTau = std::min(maxTau_, static_cast<int>(diff.size() - 1));
+    std::vector<float> cmndf(safeMaxTau - minTau_, 0.0f);
 
-    cmndf[0] = 1.0f; // convention
+    
 
-    float runningSum = 0.0f;
-    for (int tau = 1; tau < N; tau++) {
-        runningSum += diff[tau];
-        cmndf[tau] = (runningSum > 0.0f) ? diff[tau] * (tau + 1) / runningSum : 1.0f;
+    for (int tau = minTau_; tau < safeMaxTau; tau++) {
+        float runningSum = 0.0f;
+        for (int i = 1; i <= tau; i++) {
+            runningSum += diff[i];
+        }
+        if (tau == 0) {
+            cmndf[tau - minTau_] = 1.0f;
+        } else {
+            cmndf[tau - minTau_] = (runningSum > 0.0f) ? diff[tau] * tau / runningSum : 1.0f;
+        }
     }
-
     return cmndf;
 }
 

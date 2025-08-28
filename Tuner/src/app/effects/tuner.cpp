@@ -54,10 +54,25 @@ void Tuner::UpdateUI() {
 void Tuner::YinPitchDetection() {
     auto window = GetBufferOrdered();
     yin_.SetSampleRate(controls_.GetHwPtr()->AudioSampleRate());
-    yin_.SetDecimation(8);
-    frequency_ = yin_.DetectPitch(
-        window
-    );
+    yin_.SetDecimation(4);
+    yin_.SetMinFreq(50);
+    yin_.SetMaxFreq(1000);
+    yin_.SetThreshold(0.2f);
+    frequency_ = yin_.DetectPitch(window);
+    if (frequency_ >= 130.f && frequency_ < 210.f)
+    {
+        yin_.SetDecimation(2);
+        yin_.SetMinFreq(120);
+        frequency_ = yin_.DetectPitch(window);
+    }
+    else if (frequency_ >= 210.f)
+    {
+        yin_.SetDecimation(1);
+        yin_.SetMinFreq(200.f);
+        frequency_ = yin_.DetectPitch(window);
+    } 
+    
+
 
     controls_.GetHwPtr()->PrintLine(
     "frequency candidate: %d.%02d", 
