@@ -7,7 +7,6 @@
 #include "controls.h"
 
 void Tuner::UpdateParameters() {
-    Controls& controls_ = mapper_.GetControls();
     controls_.Update();
     params_.bypass = controls_.GetFootswitch(0).GetState();
 };
@@ -37,7 +36,6 @@ std::vector<float> Tuner::GetBufferOrdered() const {
 }
 
 void Tuner::UpdateUI() {
-    Controls& controls_ = mapper_.GetControls();
     sampleRate_ = controls_.GetHwPtr()->AudioSampleRate();
     if (!params_.bypass) {
         if (count >= 5) {
@@ -56,7 +54,6 @@ void Tuner::UpdateUI() {
 }
 
 void Tuner::DetectPitch() {
-    Controls& controls_ = mapper_.GetControls();
     auto window = GetBufferOrdered();
     frequency_ = CMNDFPitchDetection(
         window, sampleRate_
@@ -84,7 +81,6 @@ void Tuner::UpdateTuningDifference() {
 }
 
 void Tuner::UpdateTuningLeds() {
-    Controls& controls_ = mapper_.GetControls();
     float absDiff = std::abs(diff_);
 
     // smaller diff => closer to 1.0f

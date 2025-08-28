@@ -10,8 +10,8 @@ public:
         bool bypass = false;
     };
 
-    Tuner(ControlMapper& mapperRef, size_t windowSize = 4096)
-        : EffectBase(mapperRef), buffer_(windowSize, 0.0f), writeIndex_(0) {}
+    Tuner(Controls& controlsRef, size_t windowSize = 4096)
+        : EffectBase(controlsRef), buffer_(windowSize, 0.0f), writeIndex_(0) {}
 
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
