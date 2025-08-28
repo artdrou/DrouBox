@@ -2,7 +2,7 @@
 #include <cstddef>
 #include "effectsBase.h"
 #include "audio/dsp/fft.h"
-#include "cmndf.h"
+#include "yin.h"
 
 class Tuner : public EffectBase {
 public:
@@ -15,16 +15,18 @@ public:
 
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
+    void UpdateUI() override;
+
     void PushBlock(const float* input, size_t size);
     std::vector<float> GetBufferOrdered() const;
-    void UpdateUI() override;
-    void UpdateTuningDifference();
+
+    void YinPitchDetection();
     void UpdateTuningLeds();
-    void DetectPitch();
 
 private:
     effectParams params_;
-
+    
+    Yin yin_;
     std::vector<float> buffer_;
     size_t writeIndex_;
 

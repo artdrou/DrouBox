@@ -38,8 +38,7 @@ void Tuner::UpdateUI() {
     sampleRate_ = controls_.GetHwPtr()->AudioSampleRate();
     if (!params_.bypass) {
         if (count >= 5) {
-            DetectPitch();
-            UpdateTuningDifference();
+            YinPitchDetection();
             UpdateTuningLeds();
             count = 0;
         }
@@ -52,10 +51,12 @@ void Tuner::UpdateUI() {
     
 }
 
-void Tuner::DetectPitch() {
+void Tuner::YinPitchDetection() {
     auto window = GetBufferOrdered();
-    frequency_ = CMNDFPitchDetection(
-        window, sampleRate_
+    yin_.SetSampleRate(controls_.GetHwPtr()->AudioSampleRate());
+    yin_.SetDecimation(8);
+    frequency_ = yin_.DetectPitch(
+        window
     );
 
     controls_.GetHwPtr()->PrintLine(
@@ -64,7 +65,7 @@ void Tuner::DetectPitch() {
     (int)((frequency_ - (int)frequency_) * 100));
 }
 
-void Tuner::UpdateTuningDifference() {
+void Tuner::UpdateTuningLeds() {
     float closestDiff = std::numeric_limits<float>::max();
     closestString_ = -1;
     for (size_t i = 0; i < stringFreqs_.size(); ++i) {
@@ -76,10 +77,6 @@ void Tuner::UpdateTuningDifference() {
     }
     float target = stringFreqs_[closestString_];
     diff_ = frequency_ - target;
-
-}
-
-void Tuner::UpdateTuningLeds() {
     float absDiff = std::abs(diff_);
 
     // smaller diff => closer to 1.0f
