@@ -7,8 +7,6 @@
 class Tuner : public EffectBase {
 public:
     struct effectParams {
-        float sampleRate = 48000;
-        int frequency = 0;
         bool bypass = false;
     };
 

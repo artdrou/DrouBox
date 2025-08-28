@@ -12,7 +12,7 @@ EffectBase* EffectManager::GetActiveEffect() {
     return effects_[activeIndex_];
 }
 
-void EffectManager::UpdateParameters(const ControlMapper& mapper) {
+void EffectManager::UpdateParameters() {
     if (!effects_.empty())
         effects_[activeIndex_]->UpdateParameters();
 }
@@ -24,7 +24,7 @@ void EffectManager::Process(const float* in, float* out, size_t size) {
         Bypass(in, out, size);
 }
 
-void EffectManager::UpdateUI(Controls& controls) {
+void EffectManager::UpdateUI() {
     if (!effects_.empty())
         effects_[activeIndex_]->UpdateUI();
 }

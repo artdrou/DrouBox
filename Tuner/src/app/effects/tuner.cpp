@@ -7,7 +7,9 @@
 #include "controls.h"
 
 void Tuner::UpdateParameters() {
-    params_ = mapper_.MapTuner();
+    Controls& controls_ = mapper_.GetControls();
+    controls_.Update();
+    params_.bypass = controls_.GetFootswitch(0).GetState();
 };
 
 void Tuner::Process(const float* in, float* out, size_t size) {

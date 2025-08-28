@@ -11,9 +11,9 @@ public:
     void NextEffect();
     EffectBase* GetActiveEffect();
 
-    void UpdateParameters(const ControlMapper& mapper);
+    void UpdateParameters();
     void Process(const float* in, float* out, size_t size);
-    void UpdateUI(Controls& controls);
+    void UpdateUI();
     void Bypass(const float* in, float* out, size_t size);
 
 private:

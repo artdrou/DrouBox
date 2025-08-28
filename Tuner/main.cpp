@@ -71,8 +71,8 @@ int main(void)
     {
         // logger.TestHardware();
 
-        effectManager.UpdateParameters(mapper);
-        effectManager.UpdateUI(controls);
+        effectManager.UpdateParameters();
+        effectManager.UpdateUI();
 
         // // REBOOT BOARD DEV ONLY !!!!!!!!
         rebootDfuUpdate();
