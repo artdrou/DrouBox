@@ -31,7 +31,8 @@ private:
     size_t writeIndex_;
 
     float frequency_;
-    float frequency;
+    int sampleRate_;
+    int count = 0;
 
      // Smoothing
     float smoothedFreq_ = 0.0f;
@@ -42,9 +43,7 @@ private:
         82.41f, 110.0f, 146.83f, 196.0f, 246.94f, 329.63f
     };
     int closestString_ = -1;
-    float toleranceHz_ = 1.0f; // acceptable tuning error
-    int lastPeakIndex_;
+    float toleranceHz_ = .5f; // acceptable tuning error
     float diff_;
-    size_t fftSize_;
     int maxDeviationHz_ = 50;
 };

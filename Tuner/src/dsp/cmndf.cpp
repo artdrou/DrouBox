@@ -86,7 +86,7 @@ float AbsoluteThreshold(const std::vector<float>& cmndf, float threshold = 0.2f)
 }
 
 // Quadratic interpolation around the minimum
-float ParabolicInterpolation(const std::vector<float>& cmndf, int tau) {
+float ParabolicInterpolation(const std::vector<float>& cmndf, float tau) {
     if (tau <= 0 || tau >= (int)cmndf.size() - 1) {
         return (float)tau; // can't interpolate at boundaries
     }
@@ -115,11 +115,12 @@ float GetPitchFromLag(int tau, float sampleRate) {
 // Main function
 float CMNDFPitchDetection(const std::vector<float>& in, float sampleRate, int minFreq) {
     // Step 1: decimate
-    size_t decimationFactor = 4; // tune as needed
-    float correctionFactor = .991f; // measured with 440Hz
+    size_t decimationFactor = 8; // tune as needed
+    float correctionFactor = 1.f; // measured with 440Hz
+    // float correctionFactor = .991f; // measured with 440Hz
     float decimatedFs = correctionFactor * sampleRate / static_cast<float>(decimationFactor);
     auto decim = Decimate(in, decimationFactor);
-    int maxTau = std::min(static_cast<int>(decim.size() - 1), static_cast<int>(decimatedFs / minFreq));
+    int maxTau = std::min(static_cast<int>(decim.size()/2 - 1), static_cast<int>(decimatedFs / minFreq));
     // Step 2: normalize
     auto norm = NormalizeBuffer(decim);
     // Step 3: difference function
@@ -127,12 +128,11 @@ float CMNDFPitchDetection(const std::vector<float>& in, float sampleRate, int mi
     // Step 4: cumulative mean normalized difference
     auto cmndf = CumulativeMeanNormalizedDifference(diff);
     // Step 5: find tau
-    float tau = AbsoluteThreshold(cmndf, 0.1f);
+    float tau = AbsoluteThreshold(cmndf, 0.2f);
     // Step 6: Parabolic interpolation
     if (tau > 0) {
         tau = ParabolicInterpolation(cmndf, tau);
     }
-
     // Step 7: convert to frequency
     float frequency = GetPitchFromLag(tau, decimatedFs);
     return frequency

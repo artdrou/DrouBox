@@ -14,14 +14,7 @@ void Tuner::Process(const float* in, float* out, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         out[i] = in[i];
     }
-    PushBlock(in, size);
-    if (!params_.bypass) {
-        static int callbackCount = 0;
-        callbackCount++;
-        if(callbackCount % 50 == 0){
-            DetectPitch();
-        }
-    }    
+    PushBlock(in, size);   
 }
 
 void Tuner::PushBlock(const float* input, size_t size) {
@@ -43,10 +36,15 @@ std::vector<float> Tuner::GetBufferOrdered() const {
 
 void Tuner::UpdateUI() {
     Controls& controls_ = mapper_.GetControls();
-    frequency = frequency_;
+    sampleRate_ = controls_.GetHwPtr()->AudioSampleRate();
     if (!params_.bypass) {
-        UpdateTuningDifference();
-        UpdateTuningLeds();
+        if (count >= 5) {
+            DetectPitch();
+            UpdateTuningDifference();
+            UpdateTuningLeds();
+            count = 0;
+        }
+        ++count;
     }
     else {
         controls_.GetLed(0).Set(false);
@@ -57,32 +55,29 @@ void Tuner::UpdateUI() {
 
 void Tuner::DetectPitch() {
     Controls& controls_ = mapper_.GetControls();
-
-
     auto window = GetBufferOrdered();
     frequency_ = CMNDFPitchDetection(
-        window, controls_.GetSampleRate()
+        window, sampleRate_
     );
 
-    
     controls_.GetHwPtr()->PrintLine(
     "frequency candidate: %d.%02d", 
-    (int)frequency, 
-    (int)((frequency - (int)frequency) * 100));
+    (int)frequency_, 
+    (int)((frequency_ - (int)frequency_) * 100));
 }
 
 void Tuner::UpdateTuningDifference() {
     float closestDiff = std::numeric_limits<float>::max();
     closestString_ = -1;
     for (size_t i = 0; i < stringFreqs_.size(); ++i) {
-        diff_ = std::abs(frequency - stringFreqs_[i]);
+        diff_ = std::abs(frequency_ - stringFreqs_[i]);
         if (diff_ < closestDiff) {
             closestDiff = diff_;
             closestString_ = static_cast<int>(i);
         }
     }
     float target = stringFreqs_[closestString_];
-    diff_ = frequency - target;
+    diff_ = frequency_ - target;
 
 }
 
@@ -91,7 +86,7 @@ void Tuner::UpdateTuningLeds() {
     float absDiff = std::abs(diff_);
 
     // smaller diff => closer to 1.0f
-    float brightness = 1.0f - (absDiff / maxDeviationHz_);
+    float brightness = 1.0f - (absDiff / (float)maxDeviationHz_);
     if (brightness < 0.0f) brightness = 0.0f;
     if (brightness > 1.0f) brightness = 1.0f;
 
