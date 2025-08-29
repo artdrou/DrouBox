@@ -54,8 +54,6 @@ std::vector<float> Yin::CumulativeMeanNormalizedDifference(const std::vector<flo
     int safeMaxTau = std::min(maxTau_, static_cast<int>(diff.size() - 1));
     std::vector<float> cmndf(safeMaxTau - minTau_, 0.0f);
 
-    
-
     for (int tau = minTau_; tau < safeMaxTau; tau++) {
         float runningSum = 0.0f;
         for (int i = 1; i <= tau; i++) {
@@ -71,9 +69,8 @@ std::vector<float> Yin::CumulativeMeanNormalizedDifference(const std::vector<flo
 }
 
 float Yin::AbsoluteThreshold(const std::vector<float>& cmndf) {
-    int safeMinTau = std::max(minTau_, 1);
     int safeMaxTau = static_cast<int>(cmndf.size()) - 2;
-    for (int tau = safeMinTau; tau <= safeMaxTau; tau++) {
+    for (int tau = 1; tau <= safeMaxTau; tau++) {
         if (cmndf[tau] < cmndf[tau - 1] && cmndf[tau] < cmndf[tau + 1] && cmndf[tau] < threshold_) {
             return static_cast<float>(tau);
         }
@@ -112,7 +109,10 @@ float Yin::DetectPitch(const std::vector<float>& in) {
     float tau = AbsoluteThreshold(cmndf);
     if (tau > 0) {
         tau = ParabolicInterpolation(cmndf, tau);
+        frequency_ = GetPitchFromLag(tau + (float)minTau_);
     }
-
-    return GetPitchFromLag(tau + (float)minTau_);
+    else {
+        frequency_ = -1.f;
+    }
+    return frequency_;
 }

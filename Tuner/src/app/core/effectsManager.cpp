@@ -34,3 +34,9 @@ void EffectManager::Bypass(const float* in, float* out, size_t size) {
         out[i] = in[i];
     }
 }
+
+float EffectManager::GetActiveUpdateRateMs() const {
+    if (!effects_.empty())
+        return effects_[activeIndex_]->GetUpdateRateMs();
+    return 10.0f; // fallback default
+}

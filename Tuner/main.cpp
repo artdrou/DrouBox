@@ -71,10 +71,11 @@ int main(void)
 
         effectManager.UpdateParameters();
         effectManager.UpdateUI();
+        float effectRate = effectManager.GetActiveUpdateRateMs();
 
         // // REBOOT BOARD DEV ONLY !!!!!!!!
         rebootDfuUpdate();
 
-        System::Delay(10);
+        System::Delay(effectRate);
     }
 }

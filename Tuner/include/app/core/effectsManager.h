@@ -15,6 +15,7 @@ public:
     void Process(const float* in, float* out, size_t size);
     void UpdateUI();
     void Bypass(const float* in, float* out, size_t size);
+    float GetActiveUpdateRateMs() const;
 
 private:
     std::vector<EffectBase*> effects_;

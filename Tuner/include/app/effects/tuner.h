@@ -4,18 +4,29 @@
 #include "audio/dsp/fft.h"
 #include "yin.h"
 
+struct StringDetectConfig {
+    float centerFreq;
+    int decimation;
+    float minFreq;
+    float maxFreq;
+};
+
 class Tuner : public EffectBase {
 public:
     struct effectParams {
         bool bypass = false;
     };
 
-    Tuner(Controls& controlsRef, size_t windowSize = 4096)
-        : EffectBase(controlsRef), buffer_(windowSize, 0.0f), writeIndex_(0) {}
+    Tuner(Controls& controlsRef, size_t windowSize = 8192)
+        : EffectBase(controlsRef), buffer_(windowSize, 0.0f), writeIndex_(0) {
+            SetUpdateRateMs(50.0f);
+            BuildStringConfigs();
+        }
 
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
     void UpdateUI() override;
+    float GetUpdateRateMs() const override { return updateRateMs_; }
 
     void PushBlock(const float* input, size_t size);
     std::vector<float> GetBufferOrdered() const;
@@ -24,6 +35,7 @@ public:
     void UpdateTuningLeds();
 
 private:
+    void BuildStringConfigs();
     effectParams params_;
     
     Yin yin_;
@@ -42,6 +54,8 @@ private:
     const std::vector<float> stringFreqs_ = {
         82.41f, 110.0f, 146.83f, 196.0f, 246.94f, 329.63f
     };
+    std::vector<StringDetectConfig> stringConfigs_;
+
     int closestString_ = -1;
     float toleranceHz_ = .5f; // acceptable tuning error
     float diff_;

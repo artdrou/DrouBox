@@ -42,6 +42,7 @@ private:
     size_t decimationFactor_ = 8;
     float correctionFactor_ = 1.0f;
     float decimatedSampleRate_ = 6000.f;
+    float frequency_ = -1.f;
 
     // Internal steps
     std::vector<float> NormalizeBuffer(const std::vector<float>& in);
