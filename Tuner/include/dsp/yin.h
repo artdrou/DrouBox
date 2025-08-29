@@ -51,6 +51,7 @@ private:
     std::vector<float> CumulativeMeanNormalizedDifference(const std::vector<float>& diff);
     float AbsoluteThreshold(const std::vector<float>& cmndf);
     float ParabolicInterpolation(const std::vector<float>& cmndf, float tau);
-    float GetPitchFromLag(int tau);
+    float CubicInterpolation(const std::vector<float>& cmndf, float tau);
+    float GetPitchFromLag(float tau);
 };
 
