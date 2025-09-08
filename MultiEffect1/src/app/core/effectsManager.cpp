@@ -76,13 +76,13 @@ float EffectManager::GetActiveUpdateRateMs() const {
 }
 
 void EffectManager::ProcessControlGestures() {
-    bool aTap   = controls_.GetFootswitch(0).IsTap(1000);
-    bool aHold  = controls_.GetFootswitch(0).IsHeldForTrigger(1000);
-    bool bTap   = controls_.GetFootswitch(1).IsTap(1000);
-    bool bHold  = controls_.GetFootswitch(1).IsHeldForTrigger(1000);
+    // bool aTap   = controls_.GetFootswitch(0).IsTap(1000);
+    // bool aHold  = controls_.GetFootswitch(0).IsHeldForTrigger(1000);
+    // bool bTap   = controls_.GetFootswitch(1).IsTap(1000);
+    // bool bHold  = controls_.GetFootswitch(1).IsHeldForTrigger(1000);
 
-    bool bothTap  = (controls_.GetFootswitch(0).IsTap(1000)  && controls_.GetFootswitch(1).IsTap(1000));
-    bool bothHold = (controls_.GetFootswitch(0).IsHeldForTrigger(1000) && controls_.GetFootswitch(1).IsHeldForTrigger(1000));
+    // bool bothTap  = (controls_.GetFootswitch(0).IsTap(1000)  && controls_.GetFootswitch(1).IsTap(1000));
+    // bool bothHold = (controls_.GetFootswitch(0).IsHeldForTrigger(1000) && controls_.GetFootswitch(1).IsHeldForTrigger(1000));
 
 
     // // --- Individuels ---

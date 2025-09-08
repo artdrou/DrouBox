@@ -16,9 +16,14 @@ public:
     bool HeldFor(float seconds);
     bool IsHeldForTrigger(float seconds);
     bool GetState();
+    uint32_t GetLastTapTimeMs() const { return lastTapTimeMs_; }
+    uint32_t GetLastPressTimeMs() const { return lastPressTimeMs_; }
+    void InvalidateTap() { lastTapTimeMs_ = 0; }
 private:
     daisy::Switch footswitch;
     bool state_ = false;
     bool holdTriggered_ = false;
     float holdMs_ = 0.0f;
+    uint32_t lastTapTimeMs_ = 0;
+    uint32_t lastPressTimeMs_ = 0;
 };

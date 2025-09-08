@@ -7,6 +7,7 @@ void FootswitchManager::Init(daisy::Pin pin) {
 void FootswitchManager::Update() {
     footswitch.Debounce();
     if (JustPressed()) {
+        lastPressTimeMs_ = daisy::System::GetNow();
         state_ = !state_;
     } else if (footswitch.Pressed()) {
         holdMs_ = Held();
@@ -23,7 +24,10 @@ bool FootswitchManager::IsPressed() {
 
 bool FootswitchManager::IsTap(int maxTapTimeMs) {
     if (Released()) {
-        return holdMs_ <= maxTapTimeMs;
+        if (holdMs_ <= maxTapTimeMs) {
+            lastTapTimeMs_ = daisy::System::GetNow();
+            return true;
+        }
     }
     return false;
 }
