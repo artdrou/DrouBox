@@ -5,6 +5,7 @@
 #include "controls.h"
 #include "effectsManager.h"
 #include "tuner.h"
+#include "gain.h"
 
 #include "logging.h"
 
@@ -20,6 +21,7 @@ Controls controls;
 
 EffectManager effectManager(controls);
 Tuner tuner(controls);
+Gain gain(controls);
 
 // DEV ONLY REBOOT & LOG
 HardwareLogger logger(controls, hw);
@@ -74,6 +76,7 @@ int main(void)
 
     // Effects
     effectManager.SetBlockSize(hw.AudioBlockSize());
+    effectManager.AddEffect(&gain);
     effectManager.AddEffect(&tuner);
 
     while (1)

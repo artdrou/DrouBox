@@ -6,8 +6,6 @@
 #include "controls.h"
 
 void Tuner::UpdateParameters() {
-    controls_.Update();
-    params_.bypass = controls_.GetFootswitch(tunerConfig_.footBypass).GetState();
 };
 
 void Tuner::Process(const float* in, float* out, size_t size) {
@@ -35,16 +33,21 @@ std::vector<float> Tuner::GetBufferOrdered() const {
 }
 
 void Tuner::UpdateUI() {
-    sampleRate_ = controls_.GetHwPtr()->AudioSampleRate();
-    if (!params_.bypass) {
-        YinPitchDetection();
-        UpdateTuningLeds();
+    if (controlsActive) {
+        sampleRate_ = controls_.GetHwPtr()->AudioSampleRate();
+        if (effectActive) {
+            YinPitchDetection();
+            UpdateTuningLeds();
+        }
+        else {
+            controls_.GetLed(0).Set(false);
+            controls_.GetLed(1).Set(false);
+        }
     }
     else {
-        controls_.GetLed(0).Set(false);
-        controls_.GetLed(1).Set(false);
+        controls_.GetLed(0).Set(true);
+        controls_.GetLed(1).Set(true);
     }
-    
 }
 
 void Tuner::YinPitchDetection() {

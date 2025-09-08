@@ -23,8 +23,8 @@ private:
     FootswitchManager* a_;
     FootswitchManager* b_;
 
-    uint32_t tapLockMs_ = 500;
-    uint32_t holdLockMs_ = 500;
+    uint32_t tapLockMs_ = 250;
+    uint32_t holdLockMs_ = 250;
 
     uint32_t lockoutUntilMs_ = 0;
     uint32_t tapToleranceMs_ = 250;

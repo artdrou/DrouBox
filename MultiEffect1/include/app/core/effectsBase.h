@@ -19,7 +19,7 @@ public:
     bool controlsActive = true;
     
     virtual void ToggleBypass() { effectActive = !effectActive; }
-    virtual void ToggleControlsLock() { controlsActive = !controlsActive; }
+    virtual void ToggleControlsLock() { controlsActive = !controlsActive; };
 
     virtual ~EffectBase() {}
 protected:

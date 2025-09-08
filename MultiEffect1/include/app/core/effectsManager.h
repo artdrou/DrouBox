@@ -8,15 +8,14 @@
 class EffectManager {
 public:
     EffectManager(Controls& controlsRef) 
-        : controls_(controlsRef),
-        activeIndex_(0),
-        footswitchPair_(&controls_.GetFootswitch(0), &controls_.GetFootswitch(1)) {}
+        : controls_(controlsRef), activeIndex_(0), footswitchPair_(&controls_.GetFootswitch(0), &controls_.GetFootswitch(1)) {}
 
     void SetBlockSize(size_t blockSize);
     void AddEffect(EffectBase* effect);
     void NextEffect();
     void PreviousEffect();
     EffectBase* GetActiveEffect();
+    void LockEffect();
 
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size);
@@ -28,8 +27,8 @@ public:
 private:
     std::vector<EffectBase*> effects_;
     Controls& controls_;
-    FootswitchPair footswitchPair_;
     size_t activeIndex_;
+    FootswitchPair footswitchPair_;
     bool globalBypass_ = false;
     // Buffers for ping-pong chain processing
     std::vector<float> bufferA_;

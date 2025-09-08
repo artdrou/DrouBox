@@ -20,7 +20,6 @@ public:
     void UpdateParameters();
     void Process(const float* in, float* out, size_t size) override;
     void UpdateUI() override;
-    float GetUpdateRateMs() const override { return updateRateMs_; }
 
     void PushBlock(const float* input, size_t size);
     std::vector<float> GetBufferOrdered() const;

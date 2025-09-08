@@ -113,7 +113,6 @@ float Yin::CubicInterpolation(const std::vector<float>& cmndf, float tau) {
     float a = (-y0 + 3*y1 - 3*y2 + y3) / 6.0f;
     float b = (y0 - 2*y1 + y2) / 2.0f;
     float c = (-11*y0 + 18*y1 - 9*y2 + 2*y3) / 6.0f;
-    float d = y1;
 
     // derivative dy/dx = 3ax^2 + 2bx + c = 0
     float discrim = b*b - 3*a*c;

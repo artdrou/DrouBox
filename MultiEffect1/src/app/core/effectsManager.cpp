@@ -12,15 +12,15 @@ void EffectManager::AddEffect(EffectBase* effect) {
 void EffectManager::NextEffect() {
     if (!effects_.empty()) {
         activeIndex_ = (activeIndex_ + 1) % effects_.size();
+        controls_.GetLed(1).BlinkFor(200, 50, System::GetNow());
     }
-    controls_.GetLed(1).BlinkFor(250, 50, System::GetNow());
 }
 
 void EffectManager::PreviousEffect() {
     if (!effects_.empty()) {
         activeIndex_ = (activeIndex_ - 1) % effects_.size();
+        controls_.GetLed(0).BlinkFor(200, 50, System::GetNow());
     }
-    controls_.GetLed(0).BlinkFor(250, 50, System::GetNow());
 }
 
 EffectBase* EffectManager::GetActiveEffect() {
@@ -29,6 +29,12 @@ EffectBase* EffectManager::GetActiveEffect() {
     }
     else {
         return nullptr;
+    }
+}
+
+void EffectManager::LockEffect() {
+    if (!effects_.empty()) {
+        GetActiveEffect()->ToggleControlsLock();
     }
 }
 
@@ -61,6 +67,9 @@ void EffectManager::Process(const float* in, float* out, size_t size) {
 }
 
 void EffectManager::UpdateUI() {
+    if (effects_.empty() || globalBypass_) {
+        return;
+    }
     if (!effects_.empty() && !controls_.GetLed(0).IsBlinking() && !controls_.GetLed(1).IsBlinking())
         effects_[activeIndex_]->UpdateUI();
 }
@@ -81,7 +90,8 @@ void EffectManager::ProcessControlGestures() {
     // --- Individuels ---
     if (footswitchPair_.ATap()) {
         if (GetActiveEffect() != nullptr) {
-            GetActiveEffect()->ToggleBypass();
+            if (GetActiveEffect()->controlsActive)
+                GetActiveEffect()->ToggleBypass();
         }  
     };
     if (footswitchPair_.AHeld()) PreviousEffect();
