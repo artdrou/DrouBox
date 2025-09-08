@@ -13,12 +13,14 @@ void EffectManager::NextEffect() {
     if (!effects_.empty()) {
         activeIndex_ = (activeIndex_ + 1) % effects_.size();
     }
+    controls_.GetLed(1).BlinkFor(250, 50, System::GetNow());
 }
 
 void EffectManager::PreviousEffect() {
     if (!effects_.empty()) {
         activeIndex_ = (activeIndex_ - 1) % effects_.size();
     }
+    controls_.GetLed(0).BlinkFor(250, 50, System::GetNow());
 }
 
 EffectBase* EffectManager::GetActiveEffect() {
@@ -59,7 +61,7 @@ void EffectManager::Process(const float* in, float* out, size_t size) {
 }
 
 void EffectManager::UpdateUI() {
-    if (!effects_.empty())
+    if (!effects_.empty() && !controls_.GetLed(0).IsBlinking() && !controls_.GetLed(1).IsBlinking())
         effects_[activeIndex_]->UpdateUI();
 }
 
@@ -76,30 +78,22 @@ float EffectManager::GetActiveUpdateRateMs() const {
 }
 
 void EffectManager::ProcessControlGestures() {
-    // bool aTap   = controls_.GetFootswitch(0).IsTap(1000);
-    // bool aHold  = controls_.GetFootswitch(0).IsHeldForTrigger(1000);
-    // bool bTap   = controls_.GetFootswitch(1).IsTap(1000);
-    // bool bHold  = controls_.GetFootswitch(1).IsHeldForTrigger(1000);
-
-    // bool bothTap  = (controls_.GetFootswitch(0).IsTap(1000)  && controls_.GetFootswitch(1).IsTap(1000));
-    // bool bothHold = (controls_.GetFootswitch(0).IsHeldForTrigger(1000) && controls_.GetFootswitch(1).IsHeldForTrigger(1000));
-
-
-    // // --- Individuels ---
-    // if (aTap && !bothTap) {
-    //     if (GetActiveEffect() != nullptr) {
-    //         GetActiveEffect()->ToggleBypass();
-    //     }  
-    // };
-    // if (aHold && !bothHold) PreviousEffect();
+    // --- Individuels ---
+    if (footswitchPair_.ATap()) {
+        if (GetActiveEffect() != nullptr) {
+            GetActiveEffect()->ToggleBypass();
+        }  
+    };
+    if (footswitchPair_.AHeld()) PreviousEffect();
+    if (footswitchPair_.BHeld()) NextEffect();
 
     // // if (bTap) {
     // //     auto* delay = dynamic_cast<DelayEffect*>(GetActiveEffect());
     // //     if (delay) delay->RegisterTap(controls.GetLastTapTime(1));
     // // }
-    // if (bHold) NextEffect();
+    
 
-    // // --- Combinaisons ---
-    // if (bothTap)  GetActiveEffect()->ToggleControlsLock();
-    // if (bothHold) globalBypass_ = !globalBypass_;
+    // --- Combinaisons ---
+    if (footswitchPair_.BothTapped())  GetActiveEffect()->ToggleControlsLock();
+    if (footswitchPair_.BothHeldForTrigger()) globalBypass_ = !globalBypass_;
 }

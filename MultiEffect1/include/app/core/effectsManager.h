@@ -2,11 +2,15 @@
 
 #include "effectsBase.h"
 #include "controls.h"
+#include "footSwitchPair.h"
 #include <vector>
 
 class EffectManager {
 public:
-    EffectManager(Controls& controlsRef) : controls_(controlsRef), activeIndex_(0) {}
+    EffectManager(Controls& controlsRef) 
+        : controls_(controlsRef),
+        activeIndex_(0),
+        footswitchPair_(&controls_.GetFootswitch(0), &controls_.GetFootswitch(1)) {}
 
     void SetBlockSize(size_t blockSize);
     void AddEffect(EffectBase* effect);
@@ -24,6 +28,7 @@ public:
 private:
     std::vector<EffectBase*> effects_;
     Controls& controls_;
+    FootswitchPair footswitchPair_;
     size_t activeIndex_;
     bool globalBypass_ = false;
     // Buffers for ping-pong chain processing

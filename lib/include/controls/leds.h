@@ -8,7 +8,7 @@ using namespace daisy::seed;
 class LedManager {
 public:
     void Init(Pin pin);
-    void Update();
+    void Update(uint32_t now);
     void Set(bool state);
     void Set(float brightness);
     void Toggle();
@@ -24,6 +24,7 @@ private:
     bool blinking;
     bool blinkState;
     int blinkCount;
+    int totalBlinks;
     uint32_t blinkInterval;
     uint32_t lastBlinkTime;
 };

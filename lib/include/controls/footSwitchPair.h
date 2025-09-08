@@ -1,29 +1,33 @@
 #pragma once
 #include "footSwitches.h"
+#include <cstdint>
+#include <cmath>
 
 class FootswitchPair {
 public:
     FootswitchPair(FootswitchManager* a, FootswitchManager* b);
 
-    void Update();
+    void Update(); // call every loop
 
-    // Pair actions
-    bool BothTapped(int maxTapTimeMs, int toleranceMs = 200);
-    bool BothHeldForTrigger(float seconds, int toleranceMs = 200);
+    // Single footswitch events
+    bool ATap(int maxTapMs = 1000);
+    bool BTap(int maxTapMs = 1000);
+    bool AHeld(float seconds = 1.f);
+    bool BHeld(float seconds = 1.f);
 
-    // Individual access
-    bool ATap(int maxTapTimeMs);
-    bool BTap(int maxTapTimeMs);
-    bool AHeld(float seconds);
-    bool BHeld(float seconds);
+    // Pair events
+    bool BothTapped(int maxTapMs = 1000, uint32_t tapToleranceMs = 250);
+    bool BothHeldForTrigger(float seconds = 1.f, uint32_t holdToleranceMs = 250);
 
 private:
     FootswitchManager* a_;
     FootswitchManager* b_;
 
-    uint32_t lockoutUntilMs_ = 0;
-    uint32_t lockoutDurationMs_ = 300;
+    uint32_t tapLockMs_ = 500;
+    uint32_t holdLockMs_ = 500;
 
-    bool suppressATap_ = false;
-    bool suppressBTap_ = false;
+    uint32_t lockoutUntilMs_ = 0;
+    uint32_t tapToleranceMs_ = 250;
+
+    bool bothHoldTriggered_ = false;
 };

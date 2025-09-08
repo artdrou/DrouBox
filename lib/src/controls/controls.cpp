@@ -54,4 +54,8 @@ void Controls::Update() {
     {
         GetSwitch(i).Update();
     }
+    for(size_t i = 0; i < ControlsConfig::numLeds; i++)
+    {
+        GetLed(i).Update(System::GetNow());
+    }
 }

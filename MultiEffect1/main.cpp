@@ -25,17 +25,25 @@ Tuner tuner(controls);
 HardwareLogger logger(controls, hw);
 bool reboot = false;
 
-void rebootDfuUpdate() {
-    
-    if (controls.GetFootswitch(0).Held() > 3000) {
+void rebootDfuUpdate(uint32_t now) {
+    // Check if footswitch is held long enough to request reboot
+    if (!reboot && controls.GetFootswitch(0).Held() > 3000) {
         reboot = true;
+
+        // Trigger LEDs to blink once (one-shot)
+        controls.GetLed(0).BlinkFor(500, 50, now);
+        controls.GetLed(1).BlinkFor(500, 50, now);
     }
+
     if (reboot) {
-        controls.GetLed(0).BlinkFor(500, 50, System::GetNow());
-        controls.GetLed(1).BlinkFor(500, 50, System::GetNow());
+        // Regular update keeps blinking alive
+        controls.GetLed(0).Update(now);
+        controls.GetLed(1).Update(now);
+
+        // When LED[0] finishes blinking, reset
         if (!controls.GetLed(0).IsBlinking()) {
-            System::ResetToBootloader(); // Restart in bootloader mode
             reboot = false;
+            System::ResetToBootloader();
         }
     }
 }
@@ -66,18 +74,19 @@ int main(void)
 
     // Effects
     effectManager.SetBlockSize(hw.AudioBlockSize());
-    // effectManager.AddEffect(&tuner);
+    effectManager.AddEffect(&tuner);
 
     while (1)
-    {
-        logger.TestHardware();
+    {   
+        controls.Update();
+        // logger.TestHardware();
         effectManager.ProcessControlGestures();
         effectManager.UpdateParameters();
         effectManager.UpdateUI();
         float effectRate = effectManager.GetActiveUpdateRateMs();
 
         // // REBOOT BOARD DEV ONLY !!!!!!!!
-        rebootDfuUpdate();
+        rebootDfuUpdate(System::GetNow());
 
         System::Delay(effectRate);
     }
