@@ -8,11 +8,17 @@ class FootswitchManager {
 public:
     void Init(daisy::Pin pin);
     void Update();
-    bool Pressed();
+    bool JustPressed();
+    bool IsPressed();
+    bool IsTap(int maxTapTimeMs);
     bool Released();
     float Held();
+    bool HeldFor(float seconds);
+    bool IsHeldForTrigger(float seconds);
     bool GetState();
 private:
     daisy::Switch footswitch;
-    bool state = false;
+    bool state_ = false;
+    bool holdTriggered_ = false;
+    float holdMs_ = 0.0f;
 };

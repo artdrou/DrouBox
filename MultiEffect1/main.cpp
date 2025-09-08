@@ -13,10 +13,12 @@ using namespace daisy;
 using namespace daisysp;
 using namespace daisy::seed;
 
+#define BLOCK_SIZE 1024
+
 DaisySeed hw;
 Controls controls;
 
-EffectManager effectManager;
+EffectManager effectManager(controls);
 Tuner tuner(controls);
 
 // DEV ONLY REBOOT & LOG
@@ -52,7 +54,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 int main(void)
 {
     hw.Init(true);
-    hw.SetAudioBlockSize(1024); // Number of samples handled per callback
+    hw.SetAudioBlockSize(BLOCK_SIZE); // Number of samples handled per callback
     hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
     // AUDIO
@@ -63,12 +65,13 @@ int main(void)
     controls.Init(hw);
 
     // Effects
-    effectManager.AddEffect(&tuner);
+    effectManager.SetBlockSize(hw.AudioBlockSize());
+    // effectManager.AddEffect(&tuner);
 
     while (1)
     {
-        // logger.TestHardware();
-
+        logger.TestHardware();
+        effectManager.ProcessControlGestures();
         effectManager.UpdateParameters();
         effectManager.UpdateUI();
         float effectRate = effectManager.GetActiveUpdateRateMs();

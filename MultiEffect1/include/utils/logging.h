@@ -19,6 +19,6 @@ public:
     void TestHardware();
 
 private:
-    Controls& controls;
+    Controls& controls_;
     DaisySeed& hw;
 };

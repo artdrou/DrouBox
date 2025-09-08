@@ -3,6 +3,7 @@
 #include "effectsBase.h"
 #include "audio/dsp/fft.h"
 #include "yin.h"
+#include "effectConfig.h"
 
 
 class Tuner : public EffectBase {
@@ -29,6 +30,7 @@ public:
 
 private:
     effectParams params_;
+    TunerConfig tunerConfig_;
     
     Yin yin_;
     std::vector<float> buffer_;

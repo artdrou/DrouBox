@@ -7,7 +7,7 @@
 
 void Tuner::UpdateParameters() {
     controls_.Update();
-    params_.bypass = controls_.GetFootswitch(0).GetState();
+    params_.bypass = controls_.GetFootswitch(tunerConfig_.footBypass).GetState();
 };
 
 void Tuner::Process(const float* in, float* out, size_t size) {
