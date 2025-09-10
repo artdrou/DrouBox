@@ -1,7 +1,6 @@
 #pragma once
 #include <cstddef>
 #include "effectsBase.h"
-#include "audio/dsp/fft.h"
 #include "yin.h"
 #include "effectConfig.h"
 
