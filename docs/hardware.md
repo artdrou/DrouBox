@@ -1,5 +1,8 @@
 # Hardware Reference
 
+> **PCB design based on [GuitarML FunBox](https://github.com/GuitarML/FunBox).**
+> Buffer architecture and PCB layout are credited to the GuitarML project.
+
 ## Daisy Seed Pin Map
 
 | Function | Daisy Pin | Notes |

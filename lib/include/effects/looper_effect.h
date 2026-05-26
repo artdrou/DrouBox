@@ -1,5 +1,6 @@
 #pragma once
 #include "effectsBase.h"
+#include "buffer.h"
 #include <cstddef>
 
 namespace droubox {
@@ -13,8 +14,7 @@ public:
     explicit LooperEffect(Controls& controls, LooperConfig cfg = {})
         : EffectBase(controls), cfg_(cfg) {}
 
-    // externalBuffer must live in SDRAM for large loops
-    void Init(float* externalBuffer, size_t bufferSamples, float sampleRate);
+    void Init(float sampleRate);
 
     void UpdateParameters() override;
     void Process(const float* in, float* out, size_t size) override;
@@ -31,11 +31,10 @@ public:
 
 private:
     LooperConfig cfg_;
-    float*  buf_      = nullptr;
-    size_t  bufSize_  = 0;
-    size_t  recLen_   = 0;
-    size_t  writePos_ = 0;
-    size_t  readPos_  = 0;
+    Buffer  buffer_;
+    size_t  recLen_    = 0;
+    size_t  writePos_  = 0;
+    size_t  readPos_   = 0;
     bool    recording_ = false;
     bool    playing_   = false;
     float   sampleRate_ = 48000.f;

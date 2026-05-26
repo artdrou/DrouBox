@@ -134,6 +134,13 @@ See [docs/development.md](docs/development.md) for the full workflow.
 
 ---
 
+## Credits
+
+- **PCB design & buffer architecture** — [GuitarML FunBox](https://github.com/GuitarML/FunBox)
+- **Daisy Seed SDK** — [Electro-Smith libDaisy](https://github.com/electro-smith/libDaisy) + [DaisySP](https://github.com/electro-smith/DaisySP)
+
+---
+
 ## License
 
 MIT

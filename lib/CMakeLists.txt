@@ -64,6 +64,7 @@ else()
         src/effects/tuner.cpp
         src/effects/distortion.cpp
         src/effects/delay_effect.cpp
+        src/effects/buffer.cpp
         src/effects/looper_effect.cpp
         # Utils
         src/utils/mapping.cpp

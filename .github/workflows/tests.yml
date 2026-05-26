@@ -13,11 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: "3.22.0"
-
       - name: Configure
         run: cmake -B build-tests -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
 

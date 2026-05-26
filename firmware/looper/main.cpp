@@ -9,12 +9,6 @@
 using namespace daisy;
 using namespace daisy::seed;
 
-static constexpr size_t MAX_LOOP_SECONDS = 60;
-static constexpr size_t MAX_SAMPLES      = MAX_LOOP_SECONDS * 48000;
-
-// SDRAM placement — survives past the stack
-float DSY_SDRAM_BSS loopBuffer[MAX_SAMPLES];
-
 static DaisySeed     hw;
 static Controls      controls;
 static EffectManager manager(controls);
@@ -47,7 +41,7 @@ int main() {
     hw.StartLog(false);
 
     controls.Init(hw);
-    looper.Init(loopBuffer, MAX_SAMPLES, hw.AudioSampleRate());
+    looper.Init(hw.AudioSampleRate());
 
     manager.SetBlockSize(hw.AudioBlockSize());
     manager.AddEffect(&looper);
