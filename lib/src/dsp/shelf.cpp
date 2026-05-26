@@ -85,11 +85,13 @@ void ShelfFilter::computeLowShelf()
         a1_ = pow(gain_, -gainSign_*0.25f) / (Q_*omega0_);
         a0_ = pow(gain_, -gainSign_*0.5f);
 
-        bz0_ = (b2_*pow(K_, 2) + b1_*K_ + b0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        bz1_ = (2*b0_ - 2*b2_*pow(K_, 2))/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        bz2_ = (b2_*pow(K_, 2) - b1_*K_ + b0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        az1_ = (2*a0_ - 2*a2_*pow(K_, 2))/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        az2_ = (a2_*pow(K_, 2) - a1_*K_ + a0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
+        float denom2 = a2_*pow(K_, 2) + a1_*K_ + a0_;
+        if (std::fabs(denom2) < 1e-12f) return;
+        bz0_ = (b2_*pow(K_, 2) + b1_*K_ + b0_)/denom2;
+        bz1_ = (2*b0_ - 2*b2_*pow(K_, 2))/denom2;
+        bz2_ = (b2_*pow(K_, 2) - b1_*K_ + b0_)/denom2;
+        az1_ = (2*a0_ - 2*a2_*pow(K_, 2))/denom2;
+        az2_ = (a2_*pow(K_, 2) - a1_*K_ + a0_)/denom2;
     }
 }
 
@@ -122,11 +124,13 @@ void ShelfFilter::computeHighShelf()
         a1_ = pow(gain_, -gainSign_*0.25f) / (Q_*omega0_);
         a0_ = 1.0f;
 
-        bz0_ = (b2_*pow(K_, 2) + b1_*K_ + b0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        bz1_ = (2*b0_ - 2*b2_*pow(K_, 2))/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        bz2_ = (b2_*pow(K_, 2) - b1_*K_ + b0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        az1_ = (2*a0_ - 2*a2_*pow(K_, 2))/(a2_*pow(K_, 2) + a1_*K_ + a0_);
-        az2_ = (a2_*pow(K_, 2) - a1_*K_ + a0_)/(a2_*pow(K_, 2) + a1_*K_ + a0_);
+        float denom3 = a2_*pow(K_, 2) + a1_*K_ + a0_;
+        if (std::fabs(denom3) < 1e-12f) return;
+        bz0_ = (b2_*pow(K_, 2) + b1_*K_ + b0_)/denom3;
+        bz1_ = (2*b0_ - 2*b2_*pow(K_, 2))/denom3;
+        bz2_ = (b2_*pow(K_, 2) - b1_*K_ + b0_)/denom3;
+        az1_ = (2*a0_ - 2*a2_*pow(K_, 2))/denom3;
+        az2_ = (a2_*pow(K_, 2) - a1_*K_ + a0_)/denom3;
     }
 }
 

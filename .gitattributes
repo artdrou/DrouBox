@@ -1,0 +1,15 @@
+# Keep shell scripts with LF line endings everywhere
+*.sh text eol=lf
+
+# Text files normalized to CRLF on Windows checkout
+*.cpp text eol=crlf
+*.h   text eol=crlf
+*.md  text eol=crlf
+*.txt text eol=crlf
+*.cmake text eol=crlf
+CMakeLists.txt text eol=crlf
+
+# Binary
+*.bin  binary
+*.elf  binary
+*.a    binary

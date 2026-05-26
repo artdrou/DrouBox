@@ -20,7 +20,8 @@ bool FootswitchPair::BothTapped(int maxTapMs, uint32_t tapToleranceMs) {
     uint32_t lastBTap = b_->GetLastTapTimeMs();
 
     auto within = [&](uint32_t x, uint32_t y) {
-        return x && y && (std::abs((int)x - (int)y) <= (int)tapToleranceMs);
+        return x != kNeverPressedMs && y != kNeverPressedMs
+            && (std::abs((int)x - (int)y) <= (int)tapToleranceMs);
     };
 
     if ((aTap && bTap) || (aTap && within(lastATap,lastBTap)) || (bTap && within(lastATap,lastBTap))) {
@@ -38,7 +39,8 @@ bool FootswitchPair::BothHeldForTrigger(float seconds, uint32_t holdToleranceMs)
     uint32_t bPress = b_->GetLastPressTimeMs();
 
     auto within = [&](uint32_t x, uint32_t y) {
-        return x && y && (std::abs((int)x-(int)y) <= (int)holdToleranceMs);
+        return x != kNeverPressedMs && y != kNeverPressedMs
+            && (std::abs((int)x - (int)y) <= (int)holdToleranceMs);
     };
 
     if (aHeld && bHeld && within(aPress,bPress)) {

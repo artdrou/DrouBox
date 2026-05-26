@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  unit-tests:
+    name: Host DSP unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "3.22.0"
+
+      - name: Configure
+        run: cmake -B build-tests -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build-tests -j4
+
+      - name: Run tests
+        run: ctest --test-dir build-tests -V --output-on-failure

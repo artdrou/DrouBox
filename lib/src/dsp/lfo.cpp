@@ -53,8 +53,7 @@ float Lfo::getNextSample()
     }
 
     phase_ += phaseIncrement_;
-    if (phase_ >= 1.0f)
-        phase_ -= 1.0f;
+    phase_ -= std::floor(phase_);
 
     return output;
 }

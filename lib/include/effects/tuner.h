@@ -14,6 +14,11 @@ public:
     Tuner(Controls& controlsRef, size_t windowSize = 2048)
         : EffectBase(controlsRef), buffer_(windowSize, 0.0f), writeIndex_(0) {
             SetUpdateRateMs(10.0f);
+            yin_.SetSampleRate(48000.f);
+            yin_.SetDecimation(4);
+            yin_.SetMinFreq(75);
+            yin_.SetMaxFreq(15000);
+            yin_.SetThreshold(0.15f);
         }
 
     void UpdateParameters();
@@ -34,8 +39,8 @@ private:
     std::vector<float> buffer_;
     size_t writeIndex_;
 
-    float frequency_;
-    int sampleRate_;
+    float frequency_ = -1.f;
+    int sampleRate_ = 48000;
     int count = 0;
 
      // Smoothing

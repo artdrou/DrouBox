@@ -46,10 +46,7 @@ void Controls::Update() {
     {
         GetFootswitch(i).Update();
     }
-    for(size_t i = 0; i < ControlsConfig::numKnobs; i++)
-    {
-        GetKnobs().Update();
-    }
+    GetKnobs().Update();
     for(size_t i = 0; i < ControlsConfig::numSwitches; i++)
     {
         GetSwitch(i).Update();
